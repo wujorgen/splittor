@@ -12,25 +12,48 @@ if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release)
 endif()
 
-add_executable(
-	SPLITTOR
-    src/main.cpp
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG        v1.14.0
+)
+FetchContent_MakeAvailable(googletest)
+
+add_library(
+	LIBSPLITTOR
     src/splittor.cpp
     src/InputReader.cpp
     src/InputProcessor.cpp
+	src/SolverPoisson.cpp
 )
 
+target_include_directories(LIBSPLITTOR PUBLIC src)
+
+add_executable(SPLITTOR src/main.cpp)
+target_link_libraries(SPLITTOR LIBSPLITTOR)
+
+file(GLOB_RECURSE TEST_SOURCES "unit_tests/*.cpp")
+message("${TEST_SOURCES}")
+add_executable(TESTSPLITTOR ${TEST_SOURCES})
+target_link_libraries(TESTSPLITTOR LIBSPLITTOR gtest_main)
+
+# shenanigans to link Eigen
 find_package(Eigen3 QUIET)
 if(Eigen3_FOUND)
-	target_link_libraries(SPLITTOR PRIVATE Eigen3::Eigen)
+	target_link_libraries(LIBSPLITTOR Eigen3::Eigen)
+	#target_link_libraries(TESTSPLITTOR Eigen3::Eigen)
 else()
 	if (APPLE)
-		target_include_directories(SPLITTOR PRIVATE /opt/homebrew/Cellar/eigen/3.4.0_1/include/eigen3/)
+		target_include_directories(LIBSPLITTOR PUBLIC /opt/homebrew/Cellar/eigen/3.4.0_1/include/eigen3/)
 	elseif(UNIX)
-		target_include_directories(SPLITTOR PRIVATE /usr/local/include/eigen-3.4.0)
+		target_include_directories(LIBSPLITTOR PUBLIC /usr/local/include/eigen-3.4.0)
 	endif()
 endif()
 
 target_compile_options(SPLITTOR PRIVATE -march=native)
 
 
+enable_testing()
+include(GoogleTest)
+gtest_discover_tests(TESTSPLITTOR)
