@@ -1,15 +1,15 @@
 #include <Eigen/Dense>
 #include <cmath>
+#include <iostream>
 
 using Eigen::ArrayXXd;
 using Eigen::last;
 using Eigen::seq;
 
-void SolvePoisson(ArrayXXd& phi, const ArrayXXd& b, const double dx, const double dy, const double ETOLP,
-                  const double MAXITERP) {
+void SolvePoissonGrid2D(ArrayXXd& phi, const ArrayXXd& b, const double dx, const double dy, const double ETOLP,
+                        const double MAXITERP) {
     /* Solves the Poisson equation (\nabla \cdot \nabla P = b). */
-    // TODO: ETOLP and MAXITERP should come from convergence property struct
-    // TODO: dx and dy should come from a grid property struct
+    // TODO: will need a way to specify boundary condition inputs
     double ErrorNorm;
     ArrayXXd phi_next(phi.rows(), phi.cols());
 
@@ -25,6 +25,7 @@ void SolvePoisson(ArrayXXd& phi, const ArrayXXd& b, const double dx, const doubl
         // TODO: if there are pressure boundary conditions, enforce them here. They will come from a boundary condition object
 
         ErrorNorm = (phi_next - phi).matrix().norm();
+        // std::cout << "PoissonGrid2D Error Norm: " << ErrorNorm << std::endl;
         phi = phi_next;
 
         if (ErrorNorm <= ETOLP) {
