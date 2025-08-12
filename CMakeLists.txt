@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15...4.0)
 
 project(
-	SPLITTOR
+	splittor
 	VERSION 0.0
 	LANGUAGES CXX)
 
@@ -21,39 +21,39 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 
 add_library(
-	LIBSPLITTOR
+	libsplittor
     src/splittor.cpp
     src/InputReader.cpp
     src/InputProcessor.cpp
 	src/SolverPoisson.cpp
 )
 
-target_include_directories(LIBSPLITTOR PUBLIC src)
+target_include_directories(libsplittor PUBLIC src)
 
-add_executable(SPLITTOR src/main.cpp)
-target_link_libraries(SPLITTOR LIBSPLITTOR)
+add_executable(splittor src/main.cpp)
+target_link_libraries(splittor libsplittor)
 
 file(GLOB_RECURSE TEST_SOURCES "unit_tests/*.cpp")
 message("${TEST_SOURCES}")
-add_executable(TESTSPLITTOR ${TEST_SOURCES})
-target_link_libraries(TESTSPLITTOR LIBSPLITTOR gtest_main)
+add_executable(testsplittor ${TEST_SOURCES})
+target_link_libraries(testsplittor libsplittor gtest_main)
 
 # shenanigans to link Eigen
 find_package(Eigen3 QUIET)
 if(Eigen3_FOUND)
-	target_link_libraries(LIBSPLITTOR Eigen3::Eigen)
-	#target_link_libraries(TESTSPLITTOR Eigen3::Eigen)
+	target_link_libraries(libsplittor Eigen3::Eigen)
+	#target_link_libraries(testsplittor Eigen3::Eigen)
 else()
 	if (APPLE)
-		target_include_directories(LIBSPLITTOR PUBLIC /opt/homebrew/Cellar/eigen/3.4.0_1/include/eigen3/)
+		target_include_directories(libsplittor PUBLIC /opt/homebrew/Cellar/eigen/3.4.0_1/include/eigen3/)
 	elseif(UNIX)
-		target_include_directories(LIBSPLITTOR PUBLIC /usr/local/include/eigen-3.4.0)
+		target_include_directories(libsplittor PUBLIC /usr/local/include/eigen-3.4.0)
 	endif()
 endif()
 
-target_compile_options(SPLITTOR PRIVATE -march=native)
+target_compile_options(splittor PRIVATE -march=native)
 
 
 enable_testing()
 include(GoogleTest)
-gtest_discover_tests(TESTSPLITTOR)
+gtest_discover_tests(testsplittor)
