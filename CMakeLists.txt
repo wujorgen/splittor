@@ -38,6 +38,11 @@ message("${TEST_SOURCES}")
 add_executable(testsplittor ${TEST_SOURCES})
 target_link_libraries(testsplittor libsplittor gtest_main)
 
+find_package(xtensor REQUIRED)
+find_package(xtensor-blas REQUIRED)
+target_link_libraries(libsplittor xtensor)
+target_link_libraries(libsplittor xtensor-blas)
+
 # shenanigans to link Eigen
 find_package(Eigen3 QUIET)
 if(Eigen3_FOUND)
@@ -51,6 +56,7 @@ else()
 	endif()
 endif()
 
+# target_compile_options(libsplittor PRIVATE -march=native)  # this option causes the poisson solver test to seg fault
 target_compile_options(splittor PRIVATE -march=native)
 
 
