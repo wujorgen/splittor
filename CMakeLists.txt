@@ -34,7 +34,7 @@ add_executable(splittor src/main.cpp)
 target_link_libraries(splittor libsplittor)
 
 file(GLOB_RECURSE TEST_SOURCES "unit_tests/*.cpp")
-message("${TEST_SOURCES}")
+# message("${TEST_SOURCES}")
 add_executable(testsplittor ${TEST_SOURCES})
 target_link_libraries(testsplittor libsplittor gtest_main)
 
@@ -57,7 +57,7 @@ else()
 endif()
 
 # target_compile_options(libsplittor PRIVATE -march=native)  # this option causes the poisson solver test to seg fault
-target_compile_options(splittor PRIVATE -march=native)
+target_compile_options(splittor PRIVATE -march=native -Wno-stringop-overflow)  # supress some warning about buffer overflows?...
 
 
 enable_testing()
