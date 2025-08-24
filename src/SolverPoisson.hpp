@@ -6,6 +6,8 @@
 
 void SolvePoissonGrid2D(xt::xarray<double>& phi, const xt::xarray<double>& b, const double dx, const double dy, const double ETOLP = 1e-4, const double MAXITERP = 100);
 
+void SolvePoissonGrid3D(xt::xarray<double>& phi, const xt::xarray<double>& b, const double dx, const double dy, const double dz, const double ETOLP = 1e-4, const double MAXITERP = 100);
+
 void SolvePoissonGrid2D_Eigen(Eigen::ArrayXXd& phi, const Eigen::ArrayXXd& b, const double dx, const double dy, const double ETOLP = 1e-4, const double MAXITERP = 100);
 
 // void SolvePoissonGrid3D();
