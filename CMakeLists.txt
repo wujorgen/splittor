@@ -57,7 +57,10 @@ else()
 endif()
 
 # target_compile_options(libsplittor PRIVATE -march=native)  # this option causes the poisson solver test to seg fault
-target_compile_options(splittor PRIVATE -march=native -Wno-stringop-overflow)  # supress some warning about buffer overflows?...
+target_compile_options(
+	splittor PRIVATE
+	-O0
+)
 
 
 enable_testing()

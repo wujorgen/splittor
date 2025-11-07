@@ -1,4 +1,5 @@
-# splittor
+# Splittor
+This code solves the incompressible Navier-Stokes equations using the projection method, also known as Chorin's projection method.
 
 # TODO
 - minimum viable product
