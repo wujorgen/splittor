@@ -20,6 +20,9 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googletest)
 
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/testdata/
+     DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/testdata)
+
 add_library(
 	libsplittor
     src/splittor.cpp

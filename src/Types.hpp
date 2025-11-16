@@ -34,7 +34,7 @@ struct GridInfo {
 // Store boundary conditions
 struct BoundaryConditions {
     // store if point is boundary point
-    // 0 = no, 1 = direchlet, 2 = neumann
+    // 0 = no, 1 = velocity direchlet, 2 = pressure direchlet, 3 = velocity neumann, 4 = pressure direchlet
     Eigen::VectorXi XBC;
     Eigen::VectorXi YBC;
     Eigen::VectorXi ZBC;
@@ -53,6 +53,6 @@ struct FluidProperties {
 };
 
 // Store convergence params for implicit solvers
-struct Convergence {};
+struct ConvergenceSettings {};
 
 #endif

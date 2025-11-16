@@ -1,5 +1,6 @@
-#include <iostream>
 #include <Eigen/Dense>
+#include <iostream>
+#include <vector>
 
 #include "Types.hpp"
 
@@ -10,4 +11,59 @@ void CalcGridSteps(GridInfo& Grid) {
         Grid.dy = Grid.Y(Eigen::seq(1, Eigen::last)) - Grid.Y(Eigen::seq(0, Eigen::last - 1));
     if (Grid.NZ > 0)
         Grid.dz = Grid.Z(Eigen::seq(1, Eigen::last)) - Grid.Z(Eigen::seq(0, Eigen::last - 1));
+}
+
+bool GridIsCartesian(const GridInfo& Grid, const std::vector<double>& x, const std::vector<double>& y, const std::vector<double>& z) {
+    bool isCartesian = true;
+    double tolerance = 1e-6;
+
+    // Check that x-coordinates only vary with i (constant along j and k)
+    for (int k = 0; k < Grid.NZ; k++) {
+        for (int j = 0; j < Grid.NY; j++) {
+            for (int i = 0; i < Grid.NX; i++) {
+                int ijk = k * (Grid.NX * Grid.NY) + j * Grid.NX + i;
+                int ijk_ref = 0 * (Grid.NX * Grid.NY) + 0 * Grid.NX + i;  // same i, j=0, k=0
+
+                if (std::abs(x[ijk] - x[ijk_ref]) > tolerance) {
+                    std::cerr << "Grid is not Cartesian: x varies with j or k" << std::endl;
+                    isCartesian = false;
+                    break;
+                }
+            }
+        }
+    }
+
+    // Check that y-coordinates only vary with j (constant along i and k)
+    for (int k = 0; k < Grid.NZ; k++) {
+        for (int j = 0; j < Grid.NY; j++) {
+            for (int i = 0; i < Grid.NX; i++) {
+                int ijk = k * (Grid.NX * Grid.NY) + j * Grid.NX + i;
+                int ijk_ref = 0 * (Grid.NX * Grid.NY) + j * Grid.NX + 0;  // same j, i=0, k=0
+
+                if (std::abs(y[ijk] - y[ijk_ref]) > tolerance) {
+                    std::cerr << "Grid is not Cartesian: y varies with i or k" << std::endl;
+                    isCartesian = false;
+                    break;
+                }
+            }
+        }
+    }
+
+    // Check that z-coordinates only vary with k (constant along i and j)
+    for (int k = 0; k < Grid.NZ; k++) {
+        for (int j = 0; j < Grid.NY; j++) {
+            for (int i = 0; i < Grid.NX; i++) {
+                int ijk = k * (Grid.NX * Grid.NY) + j * Grid.NX + i;
+                int ijk_ref = k * (Grid.NX * Grid.NY) + 0 * Grid.NX + 0;  // same k, i=0, j=0
+
+                if (std::abs(z[ijk] - z[ijk_ref]) > tolerance) {
+                    std::cerr << "Grid is not Cartesian: z varies with i or j" << std::endl;
+                    std::cerr << "\t" << z[ijk] << " " << z[ijk_ref] << std::endl;
+                    isCartesian = false;
+                    break;
+                }
+            }
+        }
+    }
+    return isCartesian;
 }

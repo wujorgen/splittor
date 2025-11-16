@@ -2,15 +2,17 @@
 
 #include <Eigen/Dense>
 
+#include "../src/InputReader.hpp"
 #include "../src/InputProcessor.hpp"
 #include "../src/Types.hpp"
 
 TEST(Input, Reader) {
-    /*
-    I'm lazy, so the input file specification will just be defined here.
-    There will be a file for scalar inputs, such as domain size, number of grid points, fluid properties, etc.
-    There will be a mask file for
-    */
+    ProblemInformation Problem;
+    GridInfo Grid;
+    BoundaryConditions BC;
+    FluidProperties Properties;
+    ReadInputFile(Problem, Grid, BC, "testdata/grid.txt");
+    std::cout << Grid.NX << " x " << Grid.NY << " x " << Grid.NZ << std::endl;
 }
 
 TEST(Input, Processor) {}
