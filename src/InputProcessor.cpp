@@ -13,9 +13,8 @@ void CalcGridSteps(GridInfo& Grid) {
         Grid.dz = Grid.Z(Eigen::seq(1, Eigen::last)) - Grid.Z(Eigen::seq(0, Eigen::last - 1));
 }
 
-bool GridIsCartesian(const GridInfo& Grid, const std::vector<double>& x, const std::vector<double>& y, const std::vector<double>& z) {
+bool GridIsCartesian(const GridInfo& Grid, const std::vector<double>& x, const std::vector<double>& y, const std::vector<double>& z, double tolerance) {
     bool isCartesian = true;
-    double tolerance = 1e-6;
 
     // Check that x-coordinates only vary with i (constant along j and k)
     for (int k = 0; k < Grid.NZ; k++) {
@@ -65,5 +64,6 @@ bool GridIsCartesian(const GridInfo& Grid, const std::vector<double>& x, const s
             }
         }
     }
+
     return isCartesian;
 }

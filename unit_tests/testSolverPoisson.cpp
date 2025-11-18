@@ -125,3 +125,7 @@ TEST(SolverPoisson, Grid2D_Eigen) {
     print(np.round(phi,3))
     */
 }
+
+TEST(SolverPoisson, ZeroBC) {}
+
+TEST(SolverPoisson, DirechletBC) {}

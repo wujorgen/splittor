@@ -11,7 +11,7 @@
 #include "InputReader.hpp"
 #include "Types.hpp"
 
-int ReadInputFile(ProblemInformation& Problem, GridInfo& Grid, BoundaryConditions& BC, const std::string& fname) {
+int ReadGridFile(ProblemInformation& Problem, GridInfo& Grid, BoundaryConditions& BC, const std::string& fname) {
     // TODO: There must be a better way to do this. Until then - this is what we have.
     std::ifstream file(fname);  // TODO: that's not the right filename.
 
@@ -40,10 +40,10 @@ int ReadInputFile(ProblemInformation& Problem, GridInfo& Grid, BoundaryCondition
         Grid.NZ = i_c;
         // std::cout << i_a << "," << i_b << "," << i_c << "," << i_d << std::endl;
         HEADER_FOUND = true;
-        std::cout << "SEPERATION" << std::endl;
+        // std::cout << "SEPERATION" << std::endl;
     } else {
         std::cerr << "Header not detected." << std::endl;
-        return -1;
+        return 1;
     }
 
     int i = 0;
@@ -90,31 +90,53 @@ int ReadInputFile(ProblemInformation& Problem, GridInfo& Grid, BoundaryCondition
             while (ss >> word) {
                 words.push_back(word);
             }
-            std::cout << "Line of strings: ";
-            for (const auto& w : words) {
-                std::cout << w << " ";
-            }
+            // std::cout << "Line of strings: ";
+            // for (const auto& w : words) {
+            //     std::cout << w << " ";
+            // }
             std::cout << std::endl;
         }
     }
-    file.close();
-    for (int index = 0; index < ijk; index++) {
-        std::cout << x_locs[index] << " " << y_locs[index] << " " << z_locs[index] << std::endl;
-    }
 
-    Eigen::VectorXd eigen_vec = Eigen::Map<Eigen::VectorXd>(bc_types.data(), bc_types.size());  // TODO: syntax for mapping vector to eigen vector (not eigenvector)
+    file.close();
+
+    // for (int index = 0; index < ijk; index++) {
+    //     std::cout << x_locs[index] << " " << y_locs[index] << " " << z_locs[index] << std::endl;
+    // }
+
     if (!GridIsCartesian(Grid, x_locs, y_locs, z_locs)) {
         std::cerr << "The input grid is not cartesian." << std::endl;
-        return 1;
+        return 2;
     }
+
+    // if the grid has been confirmed as cartesian, get the unique grid points for x, y, and z
+    std::vector<double> unique_x;
+    std::vector<double> unique_y;
+    std::vector<double> unique_z;
+    for (int i = 0; i < Grid.NX; i++) {
+        ijk = 0 * (Grid.NX * Grid.NY) + 0 * Grid.NX + i;
+        unique_x.push_back(x_locs[ijk]);
+    }
+    for (int j = 0; j < Grid.NX; j++) {
+        ijk = 0 * (Grid.NX * Grid.NY) + j * Grid.NX + 0;
+        unique_y.push_back(y_locs[ijk]);
+    }
+    for (int k = 0; k < Grid.NX; k++) {
+        ijk = k * (Grid.NX * Grid.NY) + 0 * Grid.NX + 0;
+        unique_z.push_back(z_locs[ijk]);
+    }
+    Grid.X = Eigen::Map<Eigen::VectorXd>(unique_x.data(), unique_x.size());  // map std::vector to VectorXd
+    Grid.Y = Eigen::Map<Eigen::VectorXd>(unique_y.data(), unique_y.size());
+    Grid.Z = Eigen::Map<Eigen::VectorXd>(unique_z.data(), unique_z.size());
+
     return 0;
 }
 
-//int main() {
-//    ProblemInformation Problem;
-//    GridInfo Grid;
-//    BoundaryConditions BC;
-//    FluidProperties Properties;
-//    ReadInputFile(Problem, Grid, BC);
-//    std::cout << Grid.NX << " x " << Grid.NY << " x " << Grid.NZ << std::endl;
-//}
+// int main() {
+//     ProblemInformation Problem;
+//     GridInfo Grid;
+//     BoundaryConditions BC;
+//     FluidProperties Properties;
+//     ReadInputFile(Problem, Grid, BC);
+//     std::cout << Grid.NX << " x " << Grid.NY << " x " << Grid.NZ << std::endl;
+// }

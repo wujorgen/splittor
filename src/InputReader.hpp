@@ -3,6 +3,6 @@
 
 #include "Types.hpp"
 
-int ReadInputFile(ProblemInformation&, GridInfo&, BoundaryConditions&, const std::string& fname = "grid.txt");
+int ReadGridFile(ProblemInformation&, GridInfo&, BoundaryConditions&, const std::string& fname = "grid.txt");
 
 #endif
