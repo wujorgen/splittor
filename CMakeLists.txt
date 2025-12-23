@@ -29,6 +29,7 @@ add_library(
     src/InputReader.cpp
     src/InputProcessor.cpp
 	src/SolverPoisson.cpp
+	src/Utilities.cpp
 )
 
 target_include_directories(libsplittor PUBLIC src)
@@ -41,10 +42,10 @@ file(GLOB_RECURSE TEST_SOURCES "unit_tests/*.cpp")
 add_executable(testsplittor ${TEST_SOURCES})
 target_link_libraries(testsplittor libsplittor gtest_main)
 
-find_package(xtensor REQUIRED)
-find_package(xtensor-blas REQUIRED)
-target_link_libraries(libsplittor xtensor)
-target_link_libraries(libsplittor xtensor-blas)
+# find_package(xtensor REQUIRED)
+# find_package(xtensor-blas REQUIRED)
+# target_link_libraries(libsplittor xtensor)
+# target_link_libraries(libsplittor xtensor-blas)
 
 # shenanigans to link Eigen
 find_package(Eigen3 QUIET)
@@ -52,6 +53,7 @@ if(Eigen3_FOUND)
 	target_link_libraries(libsplittor Eigen3::Eigen)
 	#target_link_libraries(testsplittor Eigen3::Eigen)
 else()
+	message("Eigen3 was not automatically found. Using hardcoded defaults in CMake file...")
 	if (APPLE)
 		target_include_directories(libsplittor PUBLIC /opt/homebrew/Cellar/eigen/3.4.0_1/include/eigen3/)
 	elseif(UNIX)
