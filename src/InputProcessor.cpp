@@ -2,9 +2,16 @@
 #include <iostream>
 #include <vector>
 
+#include "InputProcessor.hpp"
 #include "Types.hpp"
 
-void CalcGridSteps(GridInfo& Grid) {
+/**
+ * @brief Calculates distances between grid points.
+ *
+ * @param Grid
+ */
+void calcGridSteps(GridInfo &Grid)
+{
     if (Grid.NX > 0)
         Grid.dx = Grid.X(Eigen::seq(1, Eigen::last)) - Grid.X(Eigen::seq(0, Eigen::last - 1));
     if (Grid.NY > 0)
@@ -13,17 +20,32 @@ void CalcGridSteps(GridInfo& Grid) {
         Grid.dz = Grid.Z(Eigen::seq(1, Eigen::last)) - Grid.Z(Eigen::seq(0, Eigen::last - 1));
 }
 
-bool GridIsCartesian(const GridInfo& Grid, const std::vector<double>& x, const std::vector<double>& y, const std::vector<double>& z, double tolerance) {
+/**
+ * @brief Checks if a grid is Cartesian.
+ *
+ * Loops over flattened lists of grid points, indexed by ijk, to check if a grid is Cartesian.
+ * @param Grid
+ * @param x
+ * @param y
+ * @param z
+ * @param tolerance
+ * @return true or false
+ */
+bool checkGridIsCartesian(const GridInfo &Grid, const std::vector<double> &x, const std::vector<double> &y, const std::vector<double> &z, double tolerance)
+{
     bool isCartesian = true;
-
     // Check that x-coordinates only vary with i (constant along j and k)
-    for (int k = 0; k < Grid.NZ; k++) {
-        for (int j = 0; j < Grid.NY; j++) {
-            for (int i = 0; i < Grid.NX; i++) {
+    for (int k = 0; k < Grid.NZ; k++)
+    {
+        for (int j = 0; j < Grid.NY; j++)
+        {
+            for (int i = 0; i < Grid.NX; i++)
+            {
                 int ijk = k * (Grid.NX * Grid.NY) + j * Grid.NX + i;
-                int ijk_ref = 0 * (Grid.NX * Grid.NY) + 0 * Grid.NX + i;  // same i, j=0, k=0
+                int ijk_ref = 0 * (Grid.NX * Grid.NY) + 0 * Grid.NX + i; // same i, j=0, k=0
 
-                if (std::abs(x[ijk] - x[ijk_ref]) > tolerance) {
+                if (std::abs(x[ijk] - x[ijk_ref]) > tolerance)
+                {
                     std::cerr << "Grid is not Cartesian: x varies with j or k" << std::endl;
                     isCartesian = false;
                     break;
@@ -31,15 +53,18 @@ bool GridIsCartesian(const GridInfo& Grid, const std::vector<double>& x, const s
             }
         }
     }
-
     // Check that y-coordinates only vary with j (constant along i and k)
-    for (int k = 0; k < Grid.NZ; k++) {
-        for (int j = 0; j < Grid.NY; j++) {
-            for (int i = 0; i < Grid.NX; i++) {
+    for (int k = 0; k < Grid.NZ; k++)
+    {
+        for (int j = 0; j < Grid.NY; j++)
+        {
+            for (int i = 0; i < Grid.NX; i++)
+            {
                 int ijk = k * (Grid.NX * Grid.NY) + j * Grid.NX + i;
-                int ijk_ref = 0 * (Grid.NX * Grid.NY) + j * Grid.NX + 0;  // same j, i=0, k=0
+                int ijk_ref = 0 * (Grid.NX * Grid.NY) + j * Grid.NX + 0; // same j, i=0, k=0
 
-                if (std::abs(y[ijk] - y[ijk_ref]) > tolerance) {
+                if (std::abs(y[ijk] - y[ijk_ref]) > tolerance)
+                {
                     std::cerr << "Grid is not Cartesian: y varies with i or k" << std::endl;
                     isCartesian = false;
                     break;
@@ -47,15 +72,18 @@ bool GridIsCartesian(const GridInfo& Grid, const std::vector<double>& x, const s
             }
         }
     }
-
     // Check that z-coordinates only vary with k (constant along i and j)
-    for (int k = 0; k < Grid.NZ; k++) {
-        for (int j = 0; j < Grid.NY; j++) {
-            for (int i = 0; i < Grid.NX; i++) {
+    for (int k = 0; k < Grid.NZ; k++)
+    {
+        for (int j = 0; j < Grid.NY; j++)
+        {
+            for (int i = 0; i < Grid.NX; i++)
+            {
                 int ijk = k * (Grid.NX * Grid.NY) + j * Grid.NX + i;
-                int ijk_ref = k * (Grid.NX * Grid.NY) + 0 * Grid.NX + 0;  // same k, i=0, j=0
+                int ijk_ref = k * (Grid.NX * Grid.NY) + 0 * Grid.NX + 0; // same k, i=0, j=0
 
-                if (std::abs(z[ijk] - z[ijk_ref]) > tolerance) {
+                if (std::abs(z[ijk] - z[ijk_ref]) > tolerance)
+                {
                     std::cerr << "Grid is not Cartesian: z varies with i or j" << std::endl;
                     std::cerr << "\t" << z[ijk] << " " << z[ijk_ref] << std::endl;
                     isCartesian = false;
@@ -64,6 +92,5 @@ bool GridIsCartesian(const GridInfo& Grid, const std::vector<double>& x, const s
             }
         }
     }
-
     return isCartesian;
 }

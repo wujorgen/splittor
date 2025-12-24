@@ -4,7 +4,8 @@
 
 #include "../src/SolverPoisson.hpp"
 
-TEST(SolverPoisson, Grid2D_Eigen) {
+TEST(SolverPoisson, Grid2D_Eigen)
+{
     int NX = 11;
     int NY = 11;
     double XMIN = 0;
@@ -82,7 +83,3 @@ TEST(SolverPoisson, Grid2D_Eigen) {
     print(np.round(phi,3))
     */
 }
-
-TEST(SolverPoisson, ZeroBC) {}
-
-TEST(SolverPoisson, DirechletBC) {}

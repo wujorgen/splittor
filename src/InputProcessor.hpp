@@ -4,8 +4,8 @@
 #include <vector>
 #include "Types.hpp"
 
-void CalcGridSteps(GridInfo& Grid);
+void calcGridSteps(GridInfo &Grid);
 
-bool GridIsCartesian(const GridInfo& Grid, const std::vector<double>& x, const std::vector<double>& y, const std::vector<double>& z, double tolerance = 1e-6);
+bool checkGridIsCartesian(const GridInfo &Grid, const std::vector<double> &x, const std::vector<double> &y, const std::vector<double> &z, double tolerance = 1e-6);
 
 #endif

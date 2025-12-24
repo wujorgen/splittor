@@ -6,12 +6,14 @@
 #include "../src/InputReader.hpp"
 #include "../src/Types.hpp"
 
-TEST(InputProcessor, GridNotCartesian) {
+TEST(InputProcessor, NotCartesian)
+{
     // TODO
     EXPECT_TRUE(true);
 }
 
-TEST(InputProcessor, CalcGridSteps) {
+TEST(InputProcessor, GridSteps)
+{
     GridInfo Grid;
     Grid.NX = 11;
     Grid.NY = 21;
@@ -27,7 +29,7 @@ TEST(InputProcessor, CalcGridSteps) {
     Eigen::VectorXd dzvec = Eigen::VectorXd::Zero(Grid.NZ - 1);
     dzvec << 0.1, 0.2, 0.3, 0.4;
 
-    CalcGridSteps(Grid);
+    calcGridSteps(Grid);
 
     for (int i = 0; i < Grid.NX - 1; i++) {
         EXPECT_NEAR(Grid.dx(i), 0.1, 1e-6);

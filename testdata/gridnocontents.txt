@@ -1,0 +1,3 @@
+NX 3 NY 3 NZ 2 D 2
+X  Y  Z  BCTYPE  UVAL  VVAL  PVAL
+0.0  0.0  0  1  0  0  0

@@ -1,11 +1,28 @@
 #ifndef TYPES
 #define TYPES
 
+#include <string>
 #include <Eigen/Dense>
+
+// Store fluid properties
+struct FluidProperties {
+    double mu = 1;
+    double rho = 1;
+};
+
+// Store convergence params
+struct ConvergenceSettings {
+    double relax = 1;
+};
 
 // Store problem information
 struct ProblemInformation {
     int Dimensions = 2;
+    double dt = 0.01;
+    double EndTime = 10;
+    std::string Mode = "steady";
+    FluidProperties Properties;
+    ConvergenceSettings Convergence;
 };
 
 // Store a flow field
@@ -45,14 +62,5 @@ struct BoundaryConditions {
     Eigen::VectorXd w;
     Eigen::VectorXd p;
 };
-
-// Store fluid properties
-struct FluidProperties {
-    double mu;
-    double rho;
-};
-
-// Store convergence params for implicit solvers
-struct ConvergenceSettings {};
 
 #endif

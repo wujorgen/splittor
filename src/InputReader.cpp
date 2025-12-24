@@ -1,26 +1,36 @@
-#include "InputReader.hpp"
-
-#include <Eigen/Dense>
+#include <bits/stdc++.h>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
 
+#include <Eigen/Dense>
+
 #include "InputProcessor.hpp"
 #include "InputReader.hpp"
 #include "Types.hpp"
 
-int ReadGridFile(ProblemInformation &Problem, GridInfo &Grid, BoundaryConditions &BC, const std::string &fname)
+/**
+ * @brief Reads the grid file.
+ *
+ * This function reads the grid file for a Cartesian grid. It stores the x/y/z locations along with the boundary conditions.
+ *
+ * @param Problem
+ * @param Grid
+ * @param BC
+ * @param fname default is "grid.txt"
+ * @return 0 if success
+ */
+int readGridFile(GridInfo& Grid, BoundaryConditions& BC, const std::string& fname)
 {
     // TODO: There must be a better way to do this. Until then - this is what we have.
-    std::ifstream file(fname); // TODO: that's not the right filename.
-
-    if (!file.is_open())
-    {
+    std::ifstream file(fname);
+    if (!file.is_open()) {
         std::cerr << "Error opening file!" << std::endl;
         return -1;
     }
+    // variables used in reading header
     bool HEADER_FOUND = false;
     std::string line;
     std::string str_a;
@@ -30,26 +40,7 @@ int ReadGridFile(ProblemInformation &Problem, GridInfo &Grid, BoundaryConditions
     std::string str_e;
     int i_nx, i_ny, i_nz, i_nd, i_bctype;
     double d_xval, d_yval, d_zval, d_uval, d_vval, d_pval;
-
-    // Header must be first line of grid input.
-    // Formatted as "NX 3 NY 2 NZ 1 D 2"
-    std::getline(file, line);
-    std::stringstream ss(line);
-    if (ss >> str_a >> i_nx >> str_b >> i_ny >> str_c >> i_nz >> str_d >> i_nd)
-    {
-        Grid.NX = i_nx;
-        Grid.NY = i_ny;
-        Grid.NZ = i_nz;
-        // std::cout << i_a << "," << i_b << "," << i_c << "," << i_d << std::endl;
-        HEADER_FOUND = true;
-        // std::cout << "SEPERATION" << std::endl;
-    }
-    else
-    {
-        std::cerr << "Header not detected." << std::endl;
-        return 1;
-    }
-
+    // variables used in reading grid locations
     int i = 0;
     int j = 0;
     int k = 0;
@@ -61,19 +52,34 @@ int ReadGridFile(ProblemInformation &Problem, GridInfo &Grid, BoundaryConditions
     std::vector<double> u_vals;
     std::vector<double> v_vals;
     std::vector<double> p_vals;
-    while (std::getline(file, line))
-    {
+
+    // Header must be first line of grid input.
+    // Formatted as "NX 3 NY 2 NZ 1 D 2"
+    std::getline(file, line);
+    std::istringstream ss(line);
+    if (ss >> str_a >> i_nx >> str_b >> i_ny >> str_c >> i_nz >> str_d >> i_nd) {
+        Grid.NX = i_nx;
+        Grid.NY = i_ny;
+        Grid.NZ = i_nz;
+        // std::cout << i_a << "," << i_b << "," << i_c << "," << i_d << std::endl;
+        HEADER_FOUND = true;
+        // std::cout << "SEPERATION" << std::endl;
+    } else {
+        std::cerr << "Header not detected." << std::endl;
+        return 1;
+    }
+
+    // Read rest of file
+    while (std::getline(file, line)) {
         // Skip empty lines
-        if (line.empty())
-        {
+        if (line.empty()) {
             continue;
         }
-        std::stringstream ss(line);
+        std::istringstream ss(line);
         // Formatting of rest of file:
-        // X  Y  Z  BCTYPE  UVAL  VVAL  PVAL
+        // X  Y  Z  BCTYPE  UVAL  VVAL  PVAL  <- this row is only there to be human readable
         // d  d  d  i       d     d     d
-        if (ss >> d_xval >> d_yval >> d_zval >> i_bctype >> d_uval >> d_vval >> d_pval)
-        {
+        if (ss >> d_xval >> d_yval >> d_zval >> i_bctype >> d_uval >> d_vval >> d_pval) {
             // std::cout << "Grid point: " << d_xval << " " << d_yval << " " << d_zval << std::endl;
             // std::cout << "\tBC Type: " << i_d << " BC Value: " << d_uval << "," << d_vval << "," << d_pval << std::endl;
             //  keep track of processed grid points using ijk indexing
@@ -92,18 +98,15 @@ int ReadGridFile(ProblemInformation &Problem, GridInfo &Grid, BoundaryConditions
             i = ijk % Grid.NX;
             j = (ijk / Grid.NX) % Grid.NY;
             k = ijk / (Grid.NX * Grid.NY);
-        }
-        else
-        {
+        } else {
             // Otherwise try to read as a line of strings
             // Reset the stringstream to read from beginning
-            // These lines wil probably just be ignored as comments
+            // These lines will be ignored as comments. TODO: check that first character is "#", otherwise error
             ss.clear();
             ss.seekg(0);
             std::vector<std::string> words;
             std::string word;
-            while (ss >> word)
-            {
+            while (ss >> word) {
                 words.push_back(word);
             }
             // std::cout << "Line of strings: ";
@@ -120,28 +123,28 @@ int ReadGridFile(ProblemInformation &Problem, GridInfo &Grid, BoundaryConditions
     //     std::cout << x_locs[index] << " " << y_locs[index] << " " << z_locs[index] << std::endl;
     // }
 
-    if (!GridIsCartesian(Grid, x_locs, y_locs, z_locs))
-    {
-        std::cerr << "The input grid is not cartesian." << std::endl;
+    if (x_locs.size() != Grid.NX * Grid.NY * Grid.NZ || y_locs.size() != Grid.NX * Grid.NY * Grid.NZ || z_locs.size() != Grid.NX * Grid.NY * Grid.NZ) {
+        std::cerr << "The input file was not read correctly." << std::endl;
         return 2;
+    }
+    if (!checkGridIsCartesian(Grid, x_locs, y_locs, z_locs)) {
+        std::cerr << "The input grid is not cartesian." << std::endl;
+        return 3;
     }
 
     // if the grid has been confirmed as cartesian, get the unique grid points for x, y, and z
     std::vector<double> unique_x;
     std::vector<double> unique_y;
     std::vector<double> unique_z;
-    for (int i = 0; i < Grid.NX; i++)
-    {
+    for (int i = 0; i < Grid.NX; i++) {
         ijk = 0 * (Grid.NX * Grid.NY) + 0 * Grid.NX + i;
         unique_x.push_back(x_locs[ijk]);
     }
-    for (int j = 0; j < Grid.NX; j++)
-    {
+    for (int j = 0; j < Grid.NX; j++) {
         ijk = 0 * (Grid.NX * Grid.NY) + j * Grid.NX + 0;
         unique_y.push_back(y_locs[ijk]);
     }
-    for (int k = 0; k < Grid.NX; k++)
-    {
+    for (int k = 0; k < Grid.NX; k++) {
         ijk = k * (Grid.NX * Grid.NY) + 0 * Grid.NX + 0;
         unique_z.push_back(z_locs[ijk]);
     }
@@ -152,16 +155,70 @@ int ReadGridFile(ProblemInformation &Problem, GridInfo &Grid, BoundaryConditions
     return 0;
 }
 
-int ReadProblemInformation(ProblemInformation &Problem, GridInfo &Grid, BoundaryConditions &BC, const std::string &fname)
+/**
+ * @brief Reads problem information
+ * @param Problem
+ * @param Grid
+ * @param BC
+ * @param fname default is "probleminfo.txt"
+ * @return 0 if success
+ */
+int readProblemInformation(ProblemInformation& Problem, const std::string& fname)
 {
+    std::ifstream file(fname);
+    if (!file.is_open()) {
+        std::cerr << "Error opening file!" << std::endl;
+        return -1;
+    }
+    std::string line;
+    std::string key;
+    std::string entry;
+    double entry_as_double;
+    double value;
+    std::string field;
+    while (std::getline(file, line)) {
+        if (line.empty()) {
+            continue;
+        }
+        std::istringstream ss(line);
+        if (ss >> key >> entry) {
+            std::istringstream nss(entry);
+            transform(key.begin(), key.end(), key.begin(), ::tolower);
+            // std::cout << "key " << key << " entry " << entry << std::endl;
+            if (nss >> entry_as_double && nss.eof()) {
+                // std::cout << "\tentry is double" << std::endl;
+                if (key == std::string("rho")) {
+                    Problem.Properties.rho = entry_as_double;
+                } else if (key == std::string("mu")) {
+                    Problem.Properties.mu = entry_as_double;
+                } else if (key == std::string("relax")) {
+                    Problem.Convergence.relax = entry_as_double;
+                } else if (key == std::string("dt")) {
+                    Problem.dt = entry_as_double;
+                } else if (key == std::string("end_time")) {
+                    Problem.EndTime = entry_as_double;
+                } else {
+                    std::cout << "Unknown key \"" << key << "\" found in " << fname << ", skipping..." << std::endl;
+                }
+            } else {
+                // std::cout << "\tentry is string" << std::endl;
+                transform(entry.begin(), entry.end(), entry.begin(), ::tolower);
+                if (key == std::string("mode")) {
+                    Problem.Mode = entry;
+                } else {
+                    std::cout << "Unknown key \"" << key << "\" found in " << fname << ", skipping..." << std::endl;
+                }
+            }
+        } else {
+            std::cout << "Ignoring: " << line << std::endl;
+        }
+    }
+    // std::cout << Problem.Convergence.relax << std::endl;
+    // std::cout << Problem.Properties.mu << std::endl;
+    // std::cout << Problem.Properties.rho << std::endl;
+    // std::cout << Problem.Mode << std::endl;
+    // std::cout << Problem.dt << std::endl;
+    // std::cout << Problem.EndTime << std::endl;
+    // std::cout << Problem.Dimensions << std::endl;
     return 0;
 }
-
-// int main() {
-//     ProblemInformation Problem;
-//     GridInfo Grid;
-//     BoundaryConditions BC;
-//     FluidProperties Properties;
-//     ReadInputFile(Problem, Grid, BC);
-//     std::cout << Grid.NX << " x " << Grid.NY << " x " << Grid.NZ << std::endl;
-// }

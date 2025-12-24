@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
-TEST(DummyTest, AlwaysPass) {
+TEST(DummyTest, AlwaysPass)
+{
     EXPECT_TRUE(true);
 }
 

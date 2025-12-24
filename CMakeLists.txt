@@ -30,6 +30,9 @@ add_library(
     src/InputProcessor.cpp
 	src/SolverPoisson.cpp
 	src/Utilities.cpp
+	src/CalcIntermediateVelocity.cpp
+	src/CalcPressure.cpp
+	src/CalcCorrectVelocity.cpp
 )
 
 target_include_directories(libsplittor PUBLIC src)
