@@ -67,7 +67,6 @@ target_compile_options(
 	-O0
 )
 
-
 enable_testing()
 include(GoogleTest)
 gtest_discover_tests(testsplittor)

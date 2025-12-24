@@ -1,6 +1,6 @@
-#include "Utilities.hpp"
-
 #include <Eigen/Dense>
+
+#include "Utilities.hpp"
 
 // Flattens a field to a vector. Iteration is done row first.
 // param field: shape (i,j)

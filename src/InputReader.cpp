@@ -21,26 +21,25 @@ int ReadGridFile(ProblemInformation& Problem, GridInfo& Grid, BoundaryConditions
     }
     bool HEADER_FOUND = false;
     std::string line;
-
     std::string str_a;
     std::string str_b;
     std::string str_c;
     std::string str_d;
     std::string str_e;
-    int i_a, i_b, i_c, i_d, i_e;
-    double d_a, d_b, d_c, d_d, d_e;
+    int i_nx, i_ny, i_nz, i_nd, i_bctype;
+    double d_xval, d_yval, d_zval, d_uval, d_vval, d_pval;
 
     // Header must be first line of grid input.
     // Formatted as "NX 3 NY 2 NZ 1 D 2"
     std::getline(file, line);
     std::stringstream ss(line);
-    if (ss >> str_a >> i_a >> str_b >> i_b >> str_c >> i_c >> str_d >> i_d) {
-        Grid.NX = i_a;
-        Grid.NY = i_b;
-        Grid.NZ = i_c;
-        // std::cout << i_a << "," << i_b << "," << i_c << "," << i_d << std::endl;
+    if (ss >> str_a >> i_nx >> str_b >> i_ny >> str_c >> i_nz >> str_d >> i_nd) {
+        Grid.NX = i_nx;
+        Grid.NY = i_ny;
+        Grid.NZ = i_nz;
+        //std::cout << i_a << "," << i_b << "," << i_c << "," << i_d << std::endl;
         HEADER_FOUND = true;
-        // std::cout << "SEPERATION" << std::endl;
+        //std::cout << "SEPERATION" << std::endl;
     } else {
         std::cerr << "Header not detected." << std::endl;
         return 1;
@@ -54,26 +53,32 @@ int ReadGridFile(ProblemInformation& Problem, GridInfo& Grid, BoundaryConditions
     std::vector<double> y_locs;
     std::vector<double> z_locs;
     std::vector<double> bc_types;
-    std::vector<double> bc_vals;
+    std::vector<double> u_vals;
+    std::vector<double> v_vals;
+    std::vector<double> p_vals;
     while (std::getline(file, line)) {
         // Skip empty lines
         if (line.empty()) {
             continue;
         }
         std::stringstream ss(line);
-        if (ss >> d_a >> d_b >> d_c >> i_d >> d_e) {
-            // Try to read 3 doubles, 1 int, and another double
-            // std::cout << "Grid point: " << d_a << " " << d_b << " " << d_c << std::endl;
-            // std::cout << "\tBC Type: " << i_d << " BC Value: " << d_e << std::endl;
+        // Formatting of rest of file:
+        // X  Y  Z  BCTYPE  UVAL  VVAL  PVAL
+        // d  d  d  i       d     d     d
+        if (ss >> d_xval >> d_yval >> d_zval >> i_bctype >> d_uval >> d_vval >> d_pval) {
+            //std::cout << "Grid point: " << d_xval << " " << d_yval << " " << d_zval << std::endl;
+            //std::cout << "\tBC Type: " << i_d << " BC Value: " << d_uval << "," << d_vval << "," << d_pval << std::endl;
             // keep track of processed grid points using ijk indexing
             ijk = k * (Grid.NX * Grid.NY) + j * Grid.NX + i;
             //
             // std::cout << "\ti:" << i << " j:" << j << " k:" << k << " ijk: " << ijk << std::endl;
-            x_locs.push_back(d_a);
-            y_locs.push_back(d_b);
-            z_locs.push_back(d_c);
-            bc_types.push_back(i_d);
-            bc_vals.push_back(d_e);
+            x_locs.push_back(d_xval);
+            y_locs.push_back(d_yval);
+            z_locs.push_back(d_zval);
+            bc_types.push_back(i_bctype);
+            u_vals.push_back(d_uval);
+            v_vals.push_back(d_vval);
+            p_vals.push_back(d_pval);
             //
             ijk++;  // Increment the flat index and decompose for next valid line
             i = ijk % Grid.NX;
@@ -90,11 +95,11 @@ int ReadGridFile(ProblemInformation& Problem, GridInfo& Grid, BoundaryConditions
             while (ss >> word) {
                 words.push_back(word);
             }
-            // std::cout << "Line of strings: ";
-            // for (const auto& w : words) {
-            //     std::cout << w << " ";
-            // }
-            std::cout << std::endl;
+            //std::cout << "Line of strings: ";
+            //for (const auto& w : words) {
+            //    std::cout << w << " ";
+            //}
+            //std::cout << std::endl;
         }
     }
 
