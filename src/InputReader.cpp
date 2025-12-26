@@ -39,19 +39,15 @@ int readGridFile(GridInfo& Grid, BoundaryConditions& BC, const std::string& fnam
     std::string str_d;
     std::string str_e;
     int i_nx, i_ny, i_nz, i_nd, i_bctype;
-    double d_xval, d_yval, d_zval, d_uval, d_vval, d_pval;
     // variables used in reading grid locations
     int i = 0;
     int j = 0;
     int k = 0;
     int ijk = 0;
+    double d_xval, d_yval, d_zval, d_uval, d_vval, d_wval, d_pval;
     std::vector<double> x_locs;
     std::vector<double> y_locs;
     std::vector<double> z_locs;
-    std::vector<double> bc_types;
-    std::vector<double> u_vals;
-    std::vector<double> v_vals;
-    std::vector<double> p_vals;
 
     // Header must be first line of grid input.
     // Formatted as "NX 3 NY 2 NZ 1 D 2"
@@ -77,9 +73,9 @@ int readGridFile(GridInfo& Grid, BoundaryConditions& BC, const std::string& fnam
         }
         std::istringstream ss(line);
         // Formatting of rest of file:
-        // X  Y  Z  BCTYPE  UVAL  VVAL  PVAL  <- this row is only there to be human readable
-        // d  d  d  i       d     d     d
-        if (ss >> d_xval >> d_yval >> d_zval >> i_bctype >> d_uval >> d_vval >> d_pval) {
+        // X  Y  Z  BCTYPE  UVAL  VVAL  WVAL  PVAL  <- this row is only there to be human readable...barely...
+        // d  d  d  i       d     d     d     d
+        if (ss >> d_xval >> d_yval >> d_zval >> i_bctype >> d_uval >> d_vval >> d_wval >> d_pval) {
             // std::cout << "Grid point: " << d_xval << " " << d_yval << " " << d_zval << std::endl;
             // std::cout << "\tBC Type: " << i_d << " BC Value: " << d_uval << "," << d_vval << "," << d_pval << std::endl;
             //  keep track of processed grid points using ijk indexing
@@ -89,12 +85,13 @@ int readGridFile(GridInfo& Grid, BoundaryConditions& BC, const std::string& fnam
             x_locs.push_back(d_xval);
             y_locs.push_back(d_yval);
             z_locs.push_back(d_zval);
-            bc_types.push_back(i_bctype);
-            u_vals.push_back(d_uval);
-            v_vals.push_back(d_vval);
-            p_vals.push_back(d_pval);
+            BC.type.push_back(static_cast<BoundaryConditionType>(i_bctype));
+            BC.u.push_back(d_uval);
+            BC.v.push_back(d_vval);
+            BC.w.push_back(d_wval);
+            BC.p.push_back(d_pval);
             //
-            ijk++; // Increment the flat index and decompose for next valid line
+            ijk++; // Increment the flat index, decompose for next valid line
             i = ijk % Grid.NX;
             j = (ijk / Grid.NX) % Grid.NY;
             k = ijk / (Grid.NX * Grid.NY);
@@ -151,6 +148,8 @@ int readGridFile(GridInfo& Grid, BoundaryConditions& BC, const std::string& fnam
     Grid.X = Eigen::Map<Eigen::VectorXd>(unique_x.data(), unique_x.size()); // map std::vector to VectorXd
     Grid.Y = Eigen::Map<Eigen::VectorXd>(unique_y.data(), unique_y.size());
     Grid.Z = Eigen::Map<Eigen::VectorXd>(unique_z.data(), unique_z.size());
+
+    calcGridSteps(Grid);
 
     return 0;
 }
@@ -213,6 +212,7 @@ int readProblemInformation(ProblemInformation& Problem, const std::string& fname
             std::cout << "Ignoring: " << line << std::endl;
         }
     }
+    Problem.nt = static_cast<int>(Problem.EndTime / Problem.dt);
     // std::cout << Problem.Convergence.relax << std::endl;
     // std::cout << Problem.Properties.mu << std::endl;
     // std::cout << Problem.Properties.rho << std::endl;

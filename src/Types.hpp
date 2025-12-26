@@ -1,8 +1,9 @@
 #ifndef TYPES
 #define TYPES
 
-#include <string>
 #include <Eigen/Dense>
+#include <string>
+#include <vector>
 
 // Store fluid properties
 struct FluidProperties {
@@ -20,6 +21,7 @@ struct ProblemInformation {
     int Dimensions = 2;
     double dt = 0.01;
     double EndTime = 10;
+    int nt;
     std::string Mode = "steady";
     FluidProperties Properties;
     ConvergenceSettings Convergence;
@@ -48,19 +50,23 @@ struct GridInfo {
     Eigen::VectorXd dz;
 };
 
+// 0 = no, 1 = velocity direchlet, 2 = pressure direchlet, 3 = velocity neumann, 4 = pressure direchlet
+enum BoundaryConditionType {
+    NOT,
+    VELOCITY_DIRECHLET,
+    PRESSURE_DIRECHLET
+};
+
 // Store boundary conditions
 struct BoundaryConditions {
     // store if point is boundary point
-    // 0 = no, 1 = velocity direchlet, 2 = pressure direchlet, 3 = velocity neumann, 4 = pressure direchlet
-    Eigen::VectorXi XBC;
-    Eigen::VectorXi YBC;
-    Eigen::VectorXi ZBC;
-    Eigen::VectorXi PBC;
-    // boundary condition value
-    Eigen::VectorXd u;
-    Eigen::VectorXd v;
-    Eigen::VectorXd w;
-    Eigen::VectorXd p;
+    std::vector<BoundaryConditionType> type;
+    // boundary condition values
+    std::vector<double> u;
+    std::vector<double> v;
+    std::vector<double> w;
+    // TODO: since i'm lazy - edges of domain all default to no pressure gradient.
+    std::vector<double> p;
 };
 
 #endif

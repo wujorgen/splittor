@@ -1,4 +1,5 @@
 #include <Eigen/Dense>
+#include <iostream>
 
 #include "CalcIntermediateVelocity.hpp"
 #include "Types.hpp"
@@ -37,21 +38,33 @@ void stepIntermediateExplicit(Eigen::VectorXd& u_star, Eigen::VectorXd& v_star, 
 
     for (int jdx = 0; jdx < Grid.NY; jdx++) {
         for (int idx = 0; idx < Grid.NX; idx++) {
+            // std::cout << "idx,jdx: " << idx << ", " << jdx << std::endl;
             ij = jdx * Grid.NX + idx;
             im1 = jdx * Grid.NX + idx - 1;
             ip1 = jdx * Grid.NX + idx + 1;
             jm1 = (jdx - 1) * Grid.NX + idx;
             jp1 = (jdx + 1) * Grid.NX + idx;
             // handle boundary conditions
-            if (false) {
-                // TODO: depends on contents of BC
+            // if (jdx == Grid.NY - 1) {
+            //     u_star(ij) = 2.0;
+            //     v_star(ij) = 0.0;
+            //     continue;
+            // } else if (jdx == 0 or idx == 0 or idx == Grid.NX - 1) {
+            //     u_star(ij) = 0.0;
+            //     v_star(ij) = 0.0;
+            //     continue;
+            // }
+            if (BC.type[ij] == BoundaryConditionType::VELOCITY_DIRECHLET) {
+                u_star(ij) = BC.u[ij];
+                v_star(ij) = BC.v[ij];
                 continue;
             }
             // set grid steps
-            dx_p = Grid.dx(idx + 1);
-            dx_m = Grid.dx(idx);
-            dy_p = Grid.dy(jdx + 1);
-            dy_m = Grid.dy(jdx);
+            dx_p = Grid.X(idx + 1) - Grid.X(idx);
+            dx_m = Grid.X(idx) - Grid.X(idx - 1);
+            dy_p = Grid.Y(jdx + 1) - Grid.Y(jdx);
+            dy_m = Grid.Y(jdx) - Grid.Y(jdx - 1);
+
             // calculate first order derivatives
             dudx_p = (u(ip1) - u(ij)) / dx_p;
             dudx_m = (u(ij) - u(im1)) / dx_m;
@@ -62,10 +75,10 @@ void stepIntermediateExplicit(Eigen::VectorXd& u_star, Eigen::VectorXd& v_star, 
             dvdy_p = (v(jp1) - v(ij)) / dy_p;
             dvdy_m = (v(ij) - v(jm1)) / dy_m;
             // calculate nonlinear first order terms
-            ududx = u(ij) * (dudx_p + dudx_m) / 2;
-            vdudy = v(ij) * (dudy_p + dudy_m) / 2;
-            udvdx = u(ij) * (dvdx_p + dvdx_m) / 2;
-            vdvdy = v(ij) * (dvdy_p + dvdy_m) / 2;
+            ududx = u(ij) * (dudx_p + dudx_m) / 2.0;
+            vdudy = v(ij) * (dudy_p + dudy_m) / 2.0;
+            udvdx = u(ij) * (dvdx_p + dvdx_m) / 2.0;
+            vdvdy = v(ij) * (dvdy_p + dvdy_m) / 2.0;
             // calculate second order terms
             d2udx2 = (dudx_p - dudx_m) / ((dx_p + dx_m) / 2);
             d2udy2 = (dudy_p - dudy_m) / ((dy_p + dy_m) / 2);
@@ -80,7 +93,7 @@ void stepIntermediateExplicit(Eigen::VectorXd& u_star, Eigen::VectorXd& v_star, 
 
 /**
  * @brief Calculates intermediate velocities using a semi implicit timestep.
- * 
+ *
  * The LHS of the equation contains the timestep and diffusion terms, while the nonlinear advetion term is moved to the RHS.
  * This eliminates the need for a nonlinear implicit solve.
  * @param u_star

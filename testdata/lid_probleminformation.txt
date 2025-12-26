@@ -2,4 +2,5 @@ mu 0.1
 rho 1
 relax 1
 mode steady
+dt 0.01
 end_time 3

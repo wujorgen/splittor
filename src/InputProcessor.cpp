@@ -8,6 +8,7 @@
 /**
  * @brief Calculates distances between grid points.
  *
+ * TODO: for some reason this doesn't work right.
  * @param Grid
  */
 void calcGridSteps(GridInfo &Grid)
