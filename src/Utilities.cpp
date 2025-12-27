@@ -25,7 +25,8 @@ Eigen::VectorXd ConvertFieldToVector(const Eigen::ArrayXXd& field)
 }
 
 /**
- * @brief
+ * @brief Unflattens a vector to a field. Iteration is done row first.
+ * 
  * @param vector shape (i*j)
  * @return matrix of shape (i,j)
  */

@@ -44,16 +44,7 @@ void stepIntermediateExplicit(Eigen::VectorXd& u_star, Eigen::VectorXd& v_star, 
             ip1 = jdx * Grid.NX + idx + 1;
             jm1 = (jdx - 1) * Grid.NX + idx;
             jp1 = (jdx + 1) * Grid.NX + idx;
-            // handle boundary conditions
-            // if (jdx == Grid.NY - 1) {
-            //     u_star(ij) = 2.0;
-            //     v_star(ij) = 0.0;
-            //     continue;
-            // } else if (jdx == 0 or idx == 0 or idx == Grid.NX - 1) {
-            //     u_star(ij) = 0.0;
-            //     v_star(ij) = 0.0;
-            //     continue;
-            // }
+            //
             if (BC.type[ij] == BoundaryConditionType::VELOCITY_DIRECHLET) {
                 u_star(ij) = BC.u[ij];
                 v_star(ij) = BC.v[ij];
@@ -64,7 +55,6 @@ void stepIntermediateExplicit(Eigen::VectorXd& u_star, Eigen::VectorXd& v_star, 
             dx_m = Grid.X(idx) - Grid.X(idx - 1);
             dy_p = Grid.Y(jdx + 1) - Grid.Y(jdx);
             dy_m = Grid.Y(jdx) - Grid.Y(jdx - 1);
-
             // calculate first order derivatives
             dudx_p = (u(ip1) - u(ij)) / dx_p;
             dudx_m = (u(ij) - u(im1)) / dx_m;
@@ -109,4 +99,86 @@ void stepIntermediateSemiImplicit(Eigen::VectorXd& u_star, Eigen::VectorXd& v_st
     int ij;
     int ip1, im1; // (i+1,j) and (i-1,j)
     int jp1, jm1; // (i,j+1) and (i,j-1)
+    // grid steps
+    double dx_p, dx_m;
+    double dy_p, dy_m;
+    // laplacian coefficients
+    double cx_p, cx_m, cx_0;
+    double cy_p, cy_m, cy_0;
+    // first order derivatives
+    double dudx_p, dudx_m;
+    double dudy_p, dudy_m;
+    double dvdx_p, dvdx_m;
+    double dvdy_p, dvdy_m;
+    // nonlinear first order terms
+    double ududx, vdudy;
+    double udvdx, vdvdy;
+    // system
+    int NTOTAL = Grid.NX * Grid.NY; // TODO: not 3d yet lol
+    Eigen::MatrixXd Au = Eigen::MatrixXd::Zero(NTOTAL, NTOTAL);
+    Eigen::MatrixXd Av = Eigen::MatrixXd::Zero(NTOTAL, NTOTAL);
+    Eigen::VectorXd bu = Eigen::VectorXd::Zero(NTOTAL);
+    Eigen::VectorXd bv = Eigen::VectorXd::Zero(NTOTAL);
+
+    for (int jdx = 0; jdx < Grid.NY; jdx++) {
+        for (int idx = 0; idx < Grid.NX; idx++) {
+            ij = jdx * Grid.NX + idx;
+            im1 = jdx * Grid.NX + idx - 1;
+            ip1 = jdx * Grid.NX + idx + 1;
+            jm1 = (jdx - 1) * Grid.NX + idx;
+            jp1 = (jdx + 1) * Grid.NX + idx;
+            //
+            if (BC.type[ij] == BoundaryConditionType::VELOCITY_DIRECHLET) {
+                Au(ij, ij) = 1.0;
+                Av(ij, ij) = 1.0;
+                bu(ij) = BC.u[ij];
+                bv(ij) = BC.v[ij];
+                continue;
+            }
+            // set grid steps
+            dx_p = Grid.X(idx + 1) - Grid.X(idx);
+            dx_m = Grid.X(idx) - Grid.X(idx - 1);
+            dy_p = Grid.Y(jdx + 1) - Grid.Y(jdx);
+            dy_m = Grid.Y(jdx) - Grid.Y(jdx - 1);
+            // calculate laplacian coefficents
+            cx_p = 2.0 / (dx_p * (dx_p + dx_m));
+            cx_m = 2.0 / (dx_m * (dx_p + dx_m));
+            cx_0 = -(cx_p + cx_m);
+            cy_p = 2.0 / (dy_p * (dy_p + dy_m));
+            cy_m = 2.0 / (dy_m * (dy_p + dy_m));
+            cy_0 = -(cy_p + cy_m);
+            // calculate first order derivatives
+            dudx_p = (u(ip1) - u(ij)) / dx_p;
+            dudx_m = (u(ij) - u(im1)) / dx_m;
+            dudy_p = (u(jp1) - u(ij)) / dy_p;
+            dudy_m = (u(ij) - u(jm1)) / dy_m;
+            dvdx_p = (v(ip1) - v(ij)) / dx_p;
+            dvdx_m = (v(ij) - v(im1)) / dx_m;
+            dvdy_p = (v(jp1) - v(ij)) / dy_p;
+            dvdy_m = (v(ij) - v(jm1)) / dy_m;
+            // calculate nonlinear first order terms
+            ududx = u(ij) * (dudx_p + dudx_m) / 2.0;
+            vdudy = v(ij) * (dudy_p + dudy_m) / 2.0;
+            udvdx = u(ij) * (dvdx_p + dvdx_m) / 2.0;
+            vdvdy = v(ij) * (dvdy_p + dvdy_m) / 2.0;
+            // set values in coefficient matrix
+            Au(ij, ij) = 1 / Problem.dt - (Problem.Properties.mu / Problem.Properties.rho) * (cx_0 + cy_0);
+            Au(ij, ip1) = -(Problem.Properties.mu / Problem.Properties.rho) * cx_p;
+            Au(ij, im1) = -(Problem.Properties.mu / Problem.Properties.rho) * cx_m;
+            Au(ij, jp1) = -(Problem.Properties.mu / Problem.Properties.rho) * cy_p;
+            Au(ij, jm1) = -(Problem.Properties.mu / Problem.Properties.rho) * cy_m;
+            Av(ij, ij) = 1 / Problem.dt - (Problem.Properties.mu / Problem.Properties.rho) * (cx_0 + cy_0);
+            Av(ij, ip1) = -(Problem.Properties.mu / Problem.Properties.rho) * cx_p;
+            Av(ij, im1) = -(Problem.Properties.mu / Problem.Properties.rho) * cx_m;
+            Av(ij, jp1) = -(Problem.Properties.mu / Problem.Properties.rho) * cy_p;
+            Av(ij, jm1) = -(Problem.Properties.mu / Problem.Properties.rho) * cy_m;
+            // set values in RHS
+            bu(ij) = u(ij) / Problem.dt - ududx - vdudy;
+            bv(ij) = v(ij) / Problem.dt - udvdx - vdvdy;
+        }
+    }
+
+    // solve for intermediate velocity
+    u_star = Au.partialPivLu().solve(bu);
+    v_star = Av.partialPivLu().solve(bv);
 }
