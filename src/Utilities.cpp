@@ -1,7 +1,27 @@
 #include <Eigen/Dense>
 // #include <unsupported/Eigen/CXX11/Tensor>
+#include <iostream>
 
+#include "Types.hpp"
 #include "Utilities.hpp"
+
+/**
+ * @brief Applies boundary conditions
+ */
+void applyVelocityBoundaryConditions2D(Eigen::VectorXd& u, Eigen::VectorXd& v, const BoundaryConditions& BC, const GridInfo& Grid)
+{
+    int ij;
+    for (int jdx = 0; jdx < Grid.NY; jdx++) {
+        for (int idx = 0; idx < Grid.NX; idx++) {
+            ij = jdx * Grid.NX + idx;
+            if (BC.velocity_type[ij] == BoundaryConditionType::DIRECHLET) {
+                // std::cout << "setting velocity direchlet in aVBC2D " << ij << std::endl;
+                u(ij) = BC.u[ij];
+                v(ij) = BC.v[ij];
+            }
+        }
+    }
+}
 
 /**
  * @brief Flattens a field to a vector. Iteration is done row first.
@@ -26,7 +46,7 @@ Eigen::VectorXd ConvertFieldToVector(const Eigen::ArrayXXd& field)
 
 /**
  * @brief Unflattens a vector to a field. Iteration is done row first.
- * 
+ *
  * @param vector shape (i*j)
  * @return matrix of shape (i,j)
  */

@@ -6,24 +6,6 @@
 #include "Types.hpp"
 
 /**
- * @brief Applies boundary conditions
- */
-void applyBoundaryConditions2D(Eigen::VectorXd& u, Eigen::VectorXd& v, const BoundaryConditions& BC, const GridInfo& Grid)
-{
-    int ij;
-    for (int jdx = 0; jdx < Grid.NY; jdx++) {
-        for (int idx = 0; idx < Grid.NX; idx++) {
-            ij = jdx * Grid.NX + idx;
-            if (BC.type[ij] == BoundaryConditionType::VELOCITY_DIRECHLET) {
-                u(ij) = BC.u[ij];
-                v(ij) = BC.v[ij];
-                continue;
-            }
-        }
-    }
-}
-
-/**
  * @brief Calculates distances between grid points.
  *
  * TODO: for some reason this doesn't work right.

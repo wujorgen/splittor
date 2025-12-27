@@ -3,7 +3,6 @@
 #include <iomanip> // needed for setprecision
 
 #include "../src/CalcIntermediateVelocity.hpp"
-#include "../src/InputProcessor.hpp"
 #include "../src/InputReader.hpp"
 #include "../src/Types.hpp"
 #include "../src/Utilities.hpp"
@@ -21,7 +20,7 @@ TEST(VelocityCalculation, ExplicitStep)
     Eigen::VectorXd u_star = Eigen::VectorXd::Zero(Grid.NX * Grid.NY);
     Eigen::VectorXd v_star = Eigen::VectorXd::Zero(Grid.NX * Grid.NY);
 
-    applyBoundaryConditions2D(u, v, BC, Grid);
+    applyVelocityBoundaryConditions2D(u, v, BC, Grid);
 
     stepIntermediateExplicit(u_star, v_star, u, v, Grid, BC, Problem);
 
@@ -62,7 +61,7 @@ TEST(VelocityCalculation, SemiImplicitStep)
     Eigen::VectorXd u_star = Eigen::VectorXd::Zero(Grid.NX * Grid.NY);
     Eigen::VectorXd v_star = Eigen::VectorXd::Zero(Grid.NX * Grid.NY);
 
-    applyBoundaryConditions2D(u, v, BC, Grid);
+    applyVelocityBoundaryConditions2D(u, v, BC, Grid);
 
     stepIntermediateSemiImplicit(u_star, v_star, u, v, Grid, BC, Problem);
 

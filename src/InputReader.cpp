@@ -38,7 +38,7 @@ int readGridFile(GridInfo& Grid, BoundaryConditions& BC, const std::string& fnam
     std::string str_c;
     std::string str_d;
     std::string str_e;
-    int i_nx, i_ny, i_nz, i_nd, i_bctype;
+    int i_nx, i_ny, i_nz, i_nd, i_vbctype, i_pbctype;
     // variables used in reading grid locations
     int i = 0;
     int j = 0;
@@ -73,9 +73,9 @@ int readGridFile(GridInfo& Grid, BoundaryConditions& BC, const std::string& fnam
         }
         std::istringstream ss(line);
         // Formatting of rest of file:
-        // X  Y  Z  BCTYPE  UVAL  VVAL  WVAL  PVAL  <- this row is only there to be human readable...barely...
-        // d  d  d  i       d     d     d     d
-        if (ss >> d_xval >> d_yval >> d_zval >> i_bctype >> d_uval >> d_vval >> d_wval >> d_pval) {
+        // X  Y  Z  UBCTYPE  PBCTYPE  UVAL  VVAL  WVAL  PVAL  <- this row is only there to be human readable...barely...
+        // d  d  d  i        i        d     d     d     d
+        if (ss >> d_xval >> d_yval >> d_zval >> i_vbctype >> i_pbctype >> d_uval >> d_vval >> d_wval >> d_pval) {
             // std::cout << "Grid point: " << d_xval << " " << d_yval << " " << d_zval << std::endl;
             // std::cout << "\tBC Type: " << i_d << " BC Value: " << d_uval << "," << d_vval << "," << d_pval << std::endl;
             //  keep track of processed grid points using ijk indexing
@@ -85,7 +85,8 @@ int readGridFile(GridInfo& Grid, BoundaryConditions& BC, const std::string& fnam
             x_locs.push_back(d_xval);
             y_locs.push_back(d_yval);
             z_locs.push_back(d_zval);
-            BC.type.push_back(static_cast<BoundaryConditionType>(i_bctype));
+            BC.velocity_type.push_back(static_cast<BoundaryConditionType>(i_vbctype));
+            BC.pressure_type.push_back(static_cast<BoundaryConditionType>(i_pbctype));
             BC.u.push_back(d_uval);
             BC.v.push_back(d_vval);
             BC.w.push_back(d_wval);

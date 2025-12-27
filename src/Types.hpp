@@ -50,17 +50,18 @@ struct GridInfo {
     Eigen::VectorXd dz;
 };
 
-// 0 = no, 1 = velocity direchlet, 2 = pressure direchlet, 3 = velocity neumann, 4 = pressure direchlet
+// 0 = no, 1 = direchlet, 2 = neumann
 enum BoundaryConditionType {
-    NOT,
-    VELOCITY_DIRECHLET,
-    PRESSURE_DIRECHLET
+    NONE,
+    DIRECHLET,
+    PRESSURE
 };
 
 // Store boundary conditions
 struct BoundaryConditions {
     // store if point is boundary point
-    std::vector<BoundaryConditionType> type;
+    std::vector<BoundaryConditionType> velocity_type;
+    std::vector<BoundaryConditionType> pressure_type;
     // boundary condition values
     std::vector<double> u;
     std::vector<double> v;

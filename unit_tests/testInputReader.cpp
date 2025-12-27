@@ -50,7 +50,7 @@ TEST(InputReader, Grid332)
     if (false) { // to view bc types during unit testing
         std::cout << "BC Types, u, v, w, p: " << std::endl;
         for (int i = 0; i < Grid.NX * Grid.NY * Grid.NZ; i++) {
-            std::cout << "\t" << BC.type[i] << ", " << BC.u[i] << ", " << BC.v[i] << ", " << BC.w[i] << ", " << BC.p[i] << std::endl;
+            std::cout << "\t" << BC.velocity_type[i] << ", " << BC.pressure_type[i] << ", " << BC.u[i] << ", " << BC.v[i] << ", " << BC.w[i] << ", " << BC.p[i] << std::endl;
         }
     }
     EXPECT_EQ(input_reader_error, 0);

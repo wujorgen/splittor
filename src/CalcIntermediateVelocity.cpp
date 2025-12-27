@@ -45,7 +45,7 @@ void stepIntermediateExplicit(Eigen::VectorXd& u_star, Eigen::VectorXd& v_star, 
             jm1 = (jdx - 1) * Grid.NX + idx;
             jp1 = (jdx + 1) * Grid.NX + idx;
             //
-            if (BC.type[ij] == BoundaryConditionType::VELOCITY_DIRECHLET) {
+            if (BC.velocity_type[ij] == BoundaryConditionType::DIRECHLET) {
                 u_star(ij) = BC.u[ij];
                 v_star(ij) = BC.v[ij];
                 continue;
@@ -128,7 +128,7 @@ void stepIntermediateSemiImplicit(Eigen::VectorXd& u_star, Eigen::VectorXd& v_st
             jm1 = (jdx - 1) * Grid.NX + idx;
             jp1 = (jdx + 1) * Grid.NX + idx;
             //
-            if (BC.type[ij] == BoundaryConditionType::VELOCITY_DIRECHLET) {
+            if (BC.velocity_type[ij] == BoundaryConditionType::DIRECHLET) {
                 Au(ij, ij) = 1.0;
                 Av(ij, ij) = 1.0;
                 bu(ij) = BC.u[ij];
