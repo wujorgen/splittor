@@ -1,4 +1,5 @@
-#include <bits/stdc++.h>
+#include <algorithm>
+#include <cctype>
 #include <fstream>
 #include <iostream>
 #include <sstream>
