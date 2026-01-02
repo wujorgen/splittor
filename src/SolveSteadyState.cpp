@@ -7,6 +7,7 @@
 #include "PISO.hpp"
 #include "SolveSteadyState.hpp"
 #include "Types.hpp"
+#include "Utilities.hpp"
 
 /**
  * @brief
@@ -31,9 +32,10 @@ void solveSteadyStateProblem(Eigen::VectorXd& u, Eigen::VectorXd& v, Eigen::Vect
 
     for (int istep = 0; istep < Problem.Convergence.Steady.MAX_STEPS; istep++) {
         std::cout << "Begin Steady State Step " << istep << std::endl;
+        applyVelocityBoundaryConditions2D(u, v, BC, Grid);
         FLAG_PISO = stepPISO(u_next, v_next, p_next, u, v, p, Grid, BC, Problem);
         if (FLAG_PISO != 0) {
-            std::cout << "PISO step failed while solving steady state problem." << std::endl;
+            // std::cout << "PISO step failed while solving steady state problem." << std::endl;
         }
         //
         delta_u = (u_next - u).norm() / u.norm();

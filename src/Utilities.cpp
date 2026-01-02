@@ -74,7 +74,7 @@ double computeDivergence(const Eigen::VectorXd& u, const Eigen::VectorXd& v,
     const GridInfo& Grid, const bool& debug)
 {
     double max_div = 0.0;
-    double sum_div = 0.0;
+    double mean_div = 0.0;
     int count = 0;
     // indexing
     int ij;
@@ -105,13 +105,14 @@ double computeDivergence(const Eigen::VectorXd& u, const Eigen::VectorXd& v,
 
             div = dudx + dvdy;
             max_div = std::max(max_div, std::abs(div));
-            sum_div += std::abs(div);
+            mean_div += std::abs(div);
             count++;
         }
     }
+    mean_div /= count;
     if (debug) {
         std::cout << "Max divergence: " << max_div
-                  << ", Mean divergence: " << sum_div / count << std::endl;
+                  << ", Mean divergence: " << mean_div << std::endl;
     }
     return max_div;
 }

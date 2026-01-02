@@ -44,6 +44,7 @@ int stepPISO(Eigen::VectorXd& u_next, Eigen::VectorXd& v_next, Eigen::VectorXd& 
     Eigen::VectorXd u_s1 = Eigen::VectorXd::Zero(Grid.NX * Grid.NY);
     Eigen::VectorXd v_s1 = Eigen::VectorXd::Zero(Grid.NX * Grid.NY);
     Eigen::VectorXd p_s1 = Eigen::VectorXd::Zero(Grid.NX * Grid.NY);
+    Eigen::VectorXd p_old = Eigen::VectorXd::Zero(Grid.NX * Grid.NY);
     Eigen::VectorXd u_s2 = Eigen::VectorXd::Zero(Grid.NX * Grid.NY);
     Eigen::VectorXd v_s2 = Eigen::VectorXd::Zero(Grid.NX * Grid.NY);
 
@@ -88,6 +89,7 @@ int stepPISO(Eigen::VectorXd& u_next, Eigen::VectorXd& v_next, Eigen::VectorXd& 
             break;
         }
         // prepare for next iteration
+        p_old = p_s1;
         u_s1 = u_s2;
         v_s1 = v_s2;
     }

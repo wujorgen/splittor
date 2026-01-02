@@ -2,8 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def plot_steady_solution():
-    NX = 11
-    NY = 11
+    NX = 21
+    NY = 21
     LX = 1
     LY = 1
     dx = LX / (NX - 1)

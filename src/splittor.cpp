@@ -14,6 +14,8 @@ using namespace std;
 
 int main()
 {
+    std::cout << "The number of threads that Eigen3 can see is: " << Eigen::nbThreads() << std::endl;
+
     ProblemInformation Problem;
     GridInfo Grid;
     BoundaryConditions BC;

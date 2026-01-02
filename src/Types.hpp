@@ -13,12 +13,12 @@ struct FluidProperties {
 
 // Store PISO convergence settings
 struct PISOSettings {
-    int MAX_NUM_ITERATIONS = 500;
-    int PRINT_EVERY_N_ITERATIONS = 50;
-    double TOL_DIVERGENCE = 1e-6;
-    double TOL_U_REL = 1e-4;
-    double TOL_V_REL = 1e-4;
-    double TOL_W_REL = 1e-4;
+    int MAX_NUM_ITERATIONS = 3;
+    int PRINT_EVERY_N_ITERATIONS = 1;
+    double TOL_DIVERGENCE = 1e-3;
+    double TOL_U_REL = 1e-3;
+    double TOL_V_REL = 1e-3;
+    double TOL_W_REL = 1e-3;
 };
 
 struct SteadyStateSettings {

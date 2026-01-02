@@ -52,6 +52,9 @@ target_link_libraries(testsplittor libsplittor gtest_main)
 # target_link_libraries(libsplittor xtensor)
 # target_link_libraries(libsplittor xtensor-blas)
 
+find_package(OpenMP REQUIRED)
+target_link_libraries(splittor OpenMP::OpenMP_CXX)
+
 # shenanigans to link Eigen
 find_package(Eigen3 QUIET)
 if(Eigen3_FOUND)
@@ -70,6 +73,7 @@ endif()
 target_compile_options(
 	splittor PRIVATE
 	-O0
+	-fopenmp
 )
 
 enable_testing()

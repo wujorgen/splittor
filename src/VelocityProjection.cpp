@@ -52,7 +52,7 @@ void projectVelocity(Eigen::VectorXd& u_next, Eigen::VectorXd& v_next,
             // calc pressure derivatives
             dpdx_p = (p(ip1) - p(ij)) / dx_p;
             dpdx_m = (p(ij) - p(im1)) / dx_m;
-            dpdy_p = (p(jp1) - p(ij)) / dx_p;
+            dpdy_p = (p(jp1) - p(ij)) / dy_p;
             dpdy_m = (p(ij) - p(jm1)) / dy_m;
             //
             u_next(ij) = u_star(ij) - (Problem.dt / Problem.Properties.rho) * (dpdx_p + dpdx_m) / 2.0;

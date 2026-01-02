@@ -1,13 +1,14 @@
 #include <Eigen/Dense>
+#include <Eigen/IterativeLinearSolvers>
 
 #include "CalcPressure.hpp"
 #include "Types.hpp"
 
 /**
- * @brief 
+ * @brief
  */
 void calcPressure(Eigen::VectorXd& p_star,
-    const Eigen::VectorXd& u_star, const Eigen::VectorXd& v_star, 
+    const Eigen::VectorXd& u_star, const Eigen::VectorXd& v_star,
     const GridInfo& Grid, const BoundaryConditions& BC, const ProblemInformation& Problem)
 {
     // indexing
@@ -79,5 +80,8 @@ void calcPressure(Eigen::VectorXd& p_star,
         }
     }
     // solve
-    p_star = A.partialPivLu().solve(b);
+    // p_star = A.partialPivLu().solve(b);
+    Eigen::BiCGSTAB<Eigen::MatrixXd> solver;
+    solver.compute(A);
+    p_star = solver.solve(b);
 }
