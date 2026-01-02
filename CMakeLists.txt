@@ -30,9 +30,11 @@ add_library(
     src/InputReader.cpp
     src/InputProcessor.cpp
 	src/PISO.cpp
-	src/SolverPoisson.cpp
+	src/SolveSteadyState.cpp
+	src/SolveTransient.cpp
 	src/Utilities.cpp
 	src/VelocityProjection.cpp
+	src/WriteFiles.cpp
 )
 
 target_include_directories(libsplittor PUBLIC src)

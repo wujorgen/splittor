@@ -1,17 +1,36 @@
 #include <Eigen/Dense>
-#include <iostream>
+#include <fstream>
 #include <iomanip>
+#include <iostream>
 
 #include "CalcIntermediateVelocity.hpp"
 #include "CalcPressure.hpp"
+#include "Constants.hpp"
 #include "Types.hpp"
-#include "VelocityProjection.hpp"
 #include "Utilities.hpp"
+#include "VelocityProjection.hpp"
 
-void stepPISO(Eigen::VectorXd& u_next, Eigen::VectorXd& v_next, Eigen::VectorXd& p_next,
+/**
+ * @brief Calculates the next velocity and pressure fields according ot the PISO algorithm
+ *
+ * @param u_next
+ * @param v_next
+ * @param p_next
+ * @param u
+ * @param v
+ * @param p
+ * @param Grid
+ * @param BC
+ * @param Problem
+ * @return 0 if converged solution has been stored to u_next, v_next, p_next
+ */
+int stepPISO(Eigen::VectorXd& u_next, Eigen::VectorXd& v_next, Eigen::VectorXd& p_next,
     const Eigen::VectorXd& u, const Eigen::VectorXd& v, const Eigen::VectorXd& p,
     const GridInfo& Grid, const BoundaryConditions& BC, const ProblemInformation& Problem)
 {
+    // std::ofstream logfile(Constants::FNAME_LOG, std::ios::app);
+
+    int RETURN_FLAG = 1;
     bool DIVERGENCE_CONVERGED = false;
     bool VELOCITY_CONVERGED = false;
 
@@ -34,8 +53,8 @@ void stepPISO(Eigen::VectorXd& u_next, Eigen::VectorXd& v_next, Eigen::VectorXd&
     // a projection step results in a divergence free velocity field
     // however, the most last calculated velocity field and last calculated pressure field may not satisfy the pressure poisson equation
     // as such, iteration is required.
-    std::cout << "PISO Step" << std::endl;
-    std::cout << std::setfill('0') << std::setw(2) << "iteration | divergence | u rel norm | v rel norm" << std::endl;
+    std::cout << "Begin PISO Step" << std::endl;
+    std::cout << std::setfill(' ') << std::setw(2) << "iteration | divergence | u rel norm | v rel norm" << std::endl;
     for (int itr = 0; itr < Problem.Convergence.PISO.MAX_NUM_ITERATIONS; itr++) {
         // Divergence
         step_divergence = computeDivergence(u_s1, v_s1, Grid);
@@ -65,14 +84,18 @@ void stepPISO(Eigen::VectorXd& u_next, Eigen::VectorXd& v_next, Eigen::VectorXd&
         }
         // exit if converged
         if (DIVERGENCE_CONVERGED || VELOCITY_CONVERGED) {
+            RETURN_FLAG = 0;
             break;
         }
         // prepare for next iteration
         u_s1 = u_s2;
         v_s1 = v_s2;
     }
+    std::cout << "End PISO Step" << std::endl;
     // final values
     u_next = u_s2;
     v_next = v_s2;
     p_next = p_s1;
+    //
+    return RETURN_FLAG;
 }

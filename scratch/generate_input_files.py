@@ -13,7 +13,6 @@ def lid_driven_cavity():
     #X = np.array([0.0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 1.0]); NX = X.shape[0]
     #Y = np.array([0.0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 1.0]); NY = Y.shape[0]
     XMG, YMG = np.meshgrid(X, Y, indexing="ij")
-    # X, Y, X.shape, Y.shape, dx, dy
 
     mu = 0.1
     rho = 1.0
@@ -37,11 +36,14 @@ def lid_driven_cavity():
                     UVAL = lid_velocity
                 elif jdx == 0 or idx == 0 or idx == NX - 1:
                     VBCTYPE = 1
-                    PBCTYPE = 0  # no grad default at domain edge
+                    PBCTYPE = 0  # do not specify - no grad default at domain edge
                 f.write(f"{X[idx]:.2f}  {Y[jdx]:.2f}  {0:.2f}  {VBCTYPE:2d}  {PBCTYPE:2d}  {UVAL:.2f}  {VVAL:.2f}  {0:.2f}  {PVAL:.2f}\n")
 
-    with open("probleminfo.txt", "w") as f:
-        pass
+    with open("probleminformation.txt", "w") as f:
+        f.write(f"mu  {mu}\n")
+        f.write(f"rho  {rho}\n")
+        f.write(f"dt  {dt}\n")
+        f.write("mode  steady\n")
 
 
 if __name__ == "__main__":
