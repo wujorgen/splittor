@@ -11,4 +11,6 @@ Eigen::VectorXd ConvertFieldToVector(const Eigen::ArrayXXd& field);
 
 Eigen::ArrayXXd ConvertVectorToField(const Eigen::VectorXd& vector, const int& NX, const int& NY);
 
+double computeDivergence(const Eigen::VectorXd& u, const Eigen::VectorXd& v, const GridInfo& Grid, const bool& print = false);
+
 #endif

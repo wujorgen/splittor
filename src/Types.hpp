@@ -11,9 +11,28 @@ struct FluidProperties {
     double rho = 1;
 };
 
-// Store convergence params
+// Store PISO convergence settings
+struct PISOSettings {
+    int MAX_NUM_ITERATIONS = 500;
+    int PRINT_EVERY_N_ITERATIONS = 10;
+    double TOL_DIVERGENCE = 1e-6;
+    double TOL_U_REL = 1e-4;
+    double TOL_V_REL = 1e-4;
+    double TOL_W_REL = 1e-4;
+};
+
+struct SteadyStateSettings {
+};
+
+struct TransientSettings {
+};
+
+// Store all convergence params
 struct ConvergenceSettings {
     double relax = 1;
+    PISOSettings PISO;
+    SteadyStateSettings Steady;
+    TransientSettings Transient;
 };
 
 // Store problem information

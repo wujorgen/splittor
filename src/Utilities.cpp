@@ -62,3 +62,56 @@ Eigen::ArrayXXd ConvertVectorToField(const Eigen::VectorXd& vector, const int& N
     }
     return field;
 }
+
+/**
+ * @brief Computes the divergence of a flow field.
+ *
+ * @param u: vector store of flow field of size NX, NY
+ * @param v: vector store of flow field of size NX, NY
+ * @param Grid: grid information
+ */
+double computeDivergence(const Eigen::VectorXd& u, const Eigen::VectorXd& v,
+    const GridInfo& Grid, const bool& debug)
+{
+    double max_div = 0.0;
+    double sum_div = 0.0;
+    int count = 0;
+    // indexing
+    int ij;
+    int ip1, im1; // (i+1,j) and (i-1,j)
+    int jp1, jm1; // (i,j+1) and (i,j-1)
+    // grid steps
+    double dx_p, dx_m;
+    double dy_p, dy_m;
+    // first derivatives
+    double dudx;
+    double dvdy;
+    double div;
+    for (int jdx = 1; jdx < Grid.NY - 1; jdx++) {
+        for (int idx = 1; idx < Grid.NX - 1; idx++) {
+            ij = jdx * Grid.NX + idx;
+            ip1 = jdx * Grid.NX + idx + 1;
+            im1 = jdx * Grid.NX + idx - 1;
+            jp1 = (jdx + 1) * Grid.NX + idx;
+            jm1 = (jdx - 1) * Grid.NX + idx;
+
+            dx_p = Grid.X(idx + 1) - Grid.X(idx);
+            dx_m = Grid.X(idx) - Grid.X(idx - 1);
+            dy_p = Grid.Y(jdx + 1) - Grid.Y(jdx);
+            dy_m = Grid.Y(jdx) - Grid.Y(jdx - 1);
+
+            dudx = 0.5 * ((u(ip1) - u(ij)) / dx_p + (u(ij) - u(im1)) / dx_m);
+            dvdy = 0.5 * ((v(jp1) - v(ij)) / dy_p + (v(ij) - v(jm1)) / dy_m);
+
+            div = dudx + dvdy;
+            max_div = std::max(max_div, std::abs(div));
+            sum_div += std::abs(div);
+            count++;
+        }
+    }
+    if (debug) {
+        std::cout << "Max divergence: " << max_div
+                  << ", Mean divergence: " << sum_div / count << std::endl;
+    }
+    return max_div;
+}

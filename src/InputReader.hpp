@@ -1,5 +1,5 @@
-#ifndef INPUTREADER
-#define INPUTREADER
+#ifndef INPUT_READER
+#define INPUT_READER
 
 #include "Types.hpp"
 

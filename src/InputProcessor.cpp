@@ -32,7 +32,9 @@ void calcGridSteps(GridInfo& Grid)
  * @param tolerance
  * @return true or false
  */
-bool checkGridIsCartesian(const GridInfo& Grid, const std::vector<double>& x, const std::vector<double>& y, const std::vector<double>& z, double tolerance)
+bool checkGridIsCartesian(const GridInfo& Grid,
+    const std::vector<double>& x, const std::vector<double>& y,
+    const std::vector<double>& z, double tolerance)
 {
     bool isCartesian = true;
     // Check that x-coordinates only vary with i (constant along j and k)

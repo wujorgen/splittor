@@ -25,19 +25,19 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/testdata/
 
 add_library(
 	libsplittor
-    src/splittor.cpp
-    src/InputReader.cpp
-    src/InputProcessor.cpp
-	src/SolverPoisson.cpp
-	src/Utilities.cpp
 	src/CalcIntermediateVelocity.cpp
 	src/CalcPressure.cpp
-	src/CalcCorrectVelocity.cpp
+    src/InputReader.cpp
+    src/InputProcessor.cpp
+	src/PISO.cpp
+	src/SolverPoisson.cpp
+	src/Utilities.cpp
+	src/VelocityProjection.cpp
 )
 
 target_include_directories(libsplittor PUBLIC src)
 
-add_executable(splittor src/main.cpp)
+add_executable(splittor src/splittor.cpp)
 target_link_libraries(splittor libsplittor)
 
 file(GLOB_RECURSE TEST_SOURCES "unit_tests/*.cpp")
