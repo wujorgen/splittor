@@ -1,8 +1,9 @@
 import numpy as np
+import sys
 
-def lid_driven_cavity():
-    NX = 51
-    NY = 51
+def lid_driven_cavity(Re:float=10):
+    NX = 65
+    NY = 65
     LX = 1
     LY = 1
     dx = LX / (NX - 1)
@@ -14,10 +15,10 @@ def lid_driven_cavity():
     #Y = np.array([0.0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 1.0]); NY = Y.shape[0]
     XMG, YMG = np.meshgrid(X, Y, indexing="ij")
 
-    mu = 0.1
-    rho = 1.0
+    rho = 1
+    mu  = 1 / Re
 
-    lid_velocity = 2.0
+    lid_velocity = 1.0
 
     with open("grid.txt", "w") as f:
         f.write(f"NX  {NX}  NY  {NY}  NZ  {1}  D  {2}\n")
@@ -48,7 +49,14 @@ def lid_driven_cavity():
         f.write(f"rho  {rho}\n")
         f.write(f"dt  {dt}\n")
         f.write("mode  steady\n")
+    
+    np.save("XMG.npy", XMG)
+    np.save("YMG.npy", YMG)
 
 
 if __name__ == "__main__":
-    lid_driven_cavity()
+    if len(sys.argv) > 1:
+        Re = float(sys.argv[1])
+    else:
+        Re = 10
+    lid_driven_cavity(Re)

@@ -4,6 +4,7 @@ v.txt
 w.txt
 p.txt
 log.txt
+*.npy
 
 
 .vscode/
