@@ -25,7 +25,7 @@ struct SteadyStateSettings {
     double TOL_U_REL = 1e-4;
     double TOL_V_REL = 1e-4;
     double TOL_W_REL = 1e-4;
-    double MAX_STEPS = 1000; // 1000
+    int MAX_STEPS = 100; // 1000
 };
 
 struct TransientSettings {

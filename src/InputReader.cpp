@@ -139,11 +139,11 @@ int readGridFile(GridInfo& Grid, BoundaryConditions& BC, const std::string& fnam
         ijk = 0 * (Grid.NX * Grid.NY) + 0 * Grid.NX + i;
         unique_x.push_back(x_locs[ijk]);
     }
-    for (int j = 0; j < Grid.NX; j++) {
+    for (int j = 0; j < Grid.NY; j++) {
         ijk = 0 * (Grid.NX * Grid.NY) + j * Grid.NX + 0;
         unique_y.push_back(y_locs[ijk]);
     }
-    for (int k = 0; k < Grid.NX; k++) {
+    for (int k = 0; k < Grid.NZ; k++) {
         ijk = k * (Grid.NX * Grid.NY) + 0 * Grid.NX + 0;
         unique_z.push_back(z_locs[ijk]);
     }
@@ -188,12 +188,17 @@ int readProblemInformation(ProblemInformation& Problem, const std::string& fname
             // std::cout << "key " << key << " entry " << entry << std::endl;
             if (nss >> entry_as_double && nss.eof()) {
                 // std::cout << "\tentry is double" << std::endl;
+                // fluid properties
                 if (key == std::string("rho")) {
                     Problem.Properties.rho = entry_as_double;
                 } else if (key == std::string("mu")) {
                     Problem.Properties.mu = entry_as_double;
                 } else if (key == std::string("relax")) {
                     Problem.Convergence.relax = entry_as_double;
+                } else if (key == std::string("piso_max_num_iterations")) {
+                    Problem.Convergence.PISO.MAX_NUM_ITERATIONS = int(entry_as_double);
+                } else if (key == std::string("steady_state_max_steps")) {
+                    Problem.Convergence.Steady.MAX_STEPS = int(entry_as_double);
                 } else if (key == std::string("dt")) {
                     Problem.dt = entry_as_double;
                 } else if (key == std::string("end_time")) {

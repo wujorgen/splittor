@@ -2,8 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def plot_steady_solution():
-    NX = 21
-    NY = 21
+    NX = 51
+    NY = 51
     LX = 1
     LY = 1
     dx = LX / (NX - 1)
@@ -21,7 +21,7 @@ def plot_steady_solution():
 
     plt.contourf(X, Y, p)
     plt.colorbar()
-    plt.streamplot(XMG, YMG, u, v, color="black")
+    # plt.streamplot(XMG, YMG, u, v, color="black")
     plt.quiver(XMG, YMG, u, v)
     plt.title("Lid Driven Cavity")
     plt.savefig("lid_driven_cavity.png")

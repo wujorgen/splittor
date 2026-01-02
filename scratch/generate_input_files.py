@@ -1,8 +1,8 @@
 import numpy as np
 
 def lid_driven_cavity():
-    NX = 21
-    NY = 21
+    NX = 51
+    NY = 51
     LX = 1
     LY = 1
     dx = LX / (NX - 1)
@@ -38,10 +38,10 @@ def lid_driven_cavity():
                     VBCTYPE = 1
                     PBCTYPE = 0  # do not specify - no grad default at domain edge
                 if jdx == NY - 1 and idx == NX//2:
-                    # pressure poisson needs a fixed pressure value at one point, so here it is
+                    # pressure poisson needs a fixed pressure value for at least one point, so here it is
                     PBCTYPE = 1
                     PVAL = 0
-                f.write(f"{X[idx]:.2f}  {Y[jdx]:.2f}  {0:.2f}  {VBCTYPE:2d}  {PBCTYPE:2d}  {UVAL:.2f}  {VVAL:.2f}  {0:.2f}  {PVAL:.2f}\n")
+                f.write(f"{X[idx]:.5f}  {Y[jdx]:.5f}  {0:.5f}  {VBCTYPE:5d}  {PBCTYPE:5d}  {UVAL:.5f}  {VVAL:.5f}  {0:.5f}  {PVAL:.5f}\n")
 
     with open("probleminformation.txt", "w") as f:
         f.write(f"mu  {mu}\n")

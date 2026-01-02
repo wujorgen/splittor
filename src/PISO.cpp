@@ -34,8 +34,10 @@ int stepPISO(Eigen::VectorXd& u_next, Eigen::VectorXd& v_next, Eigen::VectorXd& 
     bool DIVERGENCE_CONVERGED = false;
     bool VELOCITY_CONVERGED = false;
 
-    double step_divergence;
-    std::vector<double> divergence_history;
+    double step_max_divergence;
+    double step_mean_divergence;
+    std::vector<double> max_divergence_history;
+    std::vector<double> mean_divergence_history;
     double delta_u_rel_norm;
     double delta_v_rel_norm;
     std::vector<double> delta_u_history;
@@ -44,7 +46,6 @@ int stepPISO(Eigen::VectorXd& u_next, Eigen::VectorXd& v_next, Eigen::VectorXd& 
     Eigen::VectorXd u_s1 = Eigen::VectorXd::Zero(Grid.NX * Grid.NY);
     Eigen::VectorXd v_s1 = Eigen::VectorXd::Zero(Grid.NX * Grid.NY);
     Eigen::VectorXd p_s1 = Eigen::VectorXd::Zero(Grid.NX * Grid.NY);
-    Eigen::VectorXd p_old = Eigen::VectorXd::Zero(Grid.NX * Grid.NY);
     Eigen::VectorXd u_s2 = Eigen::VectorXd::Zero(Grid.NX * Grid.NY);
     Eigen::VectorXd v_s2 = Eigen::VectorXd::Zero(Grid.NX * Grid.NY);
 
@@ -55,14 +56,16 @@ int stepPISO(Eigen::VectorXd& u_next, Eigen::VectorXd& v_next, Eigen::VectorXd& 
     // however, the most last calculated velocity field and last calculated pressure field may not satisfy the pressure poisson equation
     // as such, iteration is required.
     std::cout << "Begin PISO Step" << std::endl;
-    std::cout << std::setfill(' ') << std::setw(2) << "iteration | divergence | u rel norm | v rel norm" << std::endl;
+    std::cout << std::setfill(' ') << std::setw(2) << "iteration | max divergence | mean divergence | u rel norm | v rel norm" << std::endl;
     for (int itr = 0; itr < Problem.Convergence.PISO.MAX_NUM_ITERATIONS; itr++) {
         // Divergence
-        step_divergence = computeDivergence(u_s1, v_s1, Grid);
-        if (step_divergence < Problem.Convergence.PISO.TOL_DIVERGENCE) {
+        step_max_divergence = computeMaxDivergence(u_s1, v_s1, Grid);
+        step_mean_divergence = computeMeanDivergence(u_s1, v_s1, Grid);
+        if (step_max_divergence < Problem.Convergence.PISO.TOL_DIVERGENCE) {
             DIVERGENCE_CONVERGED = true;
         }
-        divergence_history.push_back(step_divergence);
+        max_divergence_history.push_back(step_max_divergence);
+        mean_divergence_history.push_back(step_mean_divergence);
         // step PISO
         calcPressure(p_s1, u_s1, v_s1, Grid, BC, Problem);
         projectVelocity(u_s2, v_s2, u_s1, v_s1, p_s1, Grid, BC, Problem);
@@ -78,18 +81,20 @@ int stepPISO(Eigen::VectorXd& u_next, Eigen::VectorXd& v_next, Eigen::VectorXd& 
         if (itr % Problem.Convergence.PISO.PRINT_EVERY_N_ITERATIONS == 0 || (DIVERGENCE_CONVERGED || VELOCITY_CONVERGED)) {
             std::cout << std::setprecision(5) << std::setfill(' ')
                       << std::setw(9) << itr << " | "
-                      << std::setw(10) << step_divergence << " | "
+                      << std::setw(14) << step_max_divergence << " | "
+                      << std::setw(15) << step_mean_divergence << " | "
                       << std::setw(10) << delta_u_rel_norm << " | "
                       << std::setw(10) << delta_v_rel_norm
                       << std::endl;
         }
-        // exit if converged
+        // optional: exit if converged
+        // without rhie chow interpolation in pressure calculation, 
+        // doing PISO iterations until a small tolerance has been achieved will cause checkerboarding.
         if (DIVERGENCE_CONVERGED || VELOCITY_CONVERGED) {
             RETURN_FLAG = 0;
             break;
         }
         // prepare for next iteration
-        p_old = p_s1;
         u_s1 = u_s2;
         v_s1 = v_s2;
     }
