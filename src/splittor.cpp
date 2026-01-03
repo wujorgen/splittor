@@ -51,7 +51,10 @@ int main()
     }
 
     if (Problem.Mode == std::string("steady")) {
-        solveSteadyStateProblem(u, v, p, Grid, BC, Problem);
+        int steady_state_problem_error = solveSteadyStateProblem(u, v, p, Grid, BC, Problem);
+        if (steady_state_problem_error == 0) {
+            std::cerr << "Steady solution not successful!" << std::endl;
+        }
         writeToCSVFile(u, Grid, Constants::FNAME_OUTPUT_U);
         writeToCSVFile(v, Grid, Constants::FNAME_OUTPUT_V);
         writeToCSVFile(p, Grid, Constants::FNAME_OUTPUT_P);

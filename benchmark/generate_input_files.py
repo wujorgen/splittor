@@ -1,9 +1,9 @@
 import numpy as np
 import sys
 
-def lid_driven_cavity(Re:float=10):
-    NX = 65
-    NY = 65
+def lid_driven_cavity(resolution:int=65, Re:float=10):
+    NX = resolution
+    NY = resolution
     LX = 1
     LY = 1
     dx = LX / (NX - 1)
@@ -55,8 +55,16 @@ def lid_driven_cavity(Re:float=10):
 
 
 if __name__ == "__main__":
+    if len(sys.argv) == 1:
+        print("Usage: python path/to/this/script.py RESOLUTION REYNOLDS_NUMBER")
+        sys.exit()
     if len(sys.argv) > 1:
-        Re = float(sys.argv[1])
+        resolution = int(sys.argv[1])
+    else:
+        resolution = 65
+    if len(sys.argv) > 2:
+        Re = float(sys.argv[2])
     else:
         Re = 10
-    lid_driven_cavity(Re)
+    print(f"Generating input file for lid driven cavity with resolution of {resolution} x {resolution} and reynolds number of {Re}")
+    lid_driven_cavity(resolution, Re)

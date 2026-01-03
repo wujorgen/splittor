@@ -13,11 +13,13 @@
  * @brief
  *
  * @param
+ * @returns 0 if success
  */
-void solveSteadyStateProblem(Eigen::VectorXd& u, Eigen::VectorXd& v, Eigen::VectorXd& p,
+int solveSteadyStateProblem(Eigen::VectorXd& u, Eigen::VectorXd& v, Eigen::VectorXd& p,
     const GridInfo& Grid, const BoundaryConditions& BC, const ProblemInformation& Problem)
 {
     // std::ofstream logfile(Constants::FNAME_LOG, std::ios::app);
+    int steady_state_flag = 1;
 
     Eigen::VectorXd u_next = Eigen::VectorXd::Zero(Grid.NX * Grid.NY);
     Eigen::VectorXd v_next = Eigen::VectorXd::Zero(Grid.NX * Grid.NY);
@@ -51,6 +53,7 @@ void solveSteadyStateProblem(Eigen::VectorXd& u, Eigen::VectorXd& v, Eigen::Vect
                   << std::endl;
         //
         if (delta_u < Problem.Convergence.Steady.TOL_U_REL && delta_v < Problem.Convergence.Steady.TOL_V_REL) {
+            steady_state_flag = 0;
             break;
         }
         //
@@ -58,6 +61,7 @@ void solveSteadyStateProblem(Eigen::VectorXd& u, Eigen::VectorXd& v, Eigen::Vect
         v = v_next;
         p = p_next;
     }
+    return steady_state_flag;
 }
 
 /**

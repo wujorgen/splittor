@@ -6,6 +6,8 @@
 
 void stepIntermediateExplicit(Eigen::VectorXd& u_star, Eigen::VectorXd& v_star, const Eigen::VectorXd& u, const Eigen::VectorXd& v, const GridInfo& Grid, const BoundaryConditions& BC, const ProblemInformation& Problem);
 
+void stepIntermediateSemiImplicitDense(Eigen::VectorXd& u_star, Eigen::VectorXd& v_star, const Eigen::VectorXd& u, const Eigen::VectorXd& v, const GridInfo& Grid, const BoundaryConditions& BC, const ProblemInformation& Problem);
+
 void stepIntermediateSemiImplicit(Eigen::VectorXd& u_star, Eigen::VectorXd& v_star, const Eigen::VectorXd& u, const Eigen::VectorXd& v, const GridInfo& Grid, const BoundaryConditions& BC, const ProblemInformation& Problem);
 
 #endif

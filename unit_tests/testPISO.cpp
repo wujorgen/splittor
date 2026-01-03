@@ -96,7 +96,7 @@ TEST(OperatorSplitting, PISO_STEP)
     stepPISO(u_next, v_next, p_next, u, v, p, Grid, BC, Problem);
 
     // printing and checking
-    bool print = true;
+    bool print = false;
     Eigen::MatrixXd u_next_mat = ConvertVectorToField(u_next, Grid.NX, Grid.NY);
     for (int jdx = 0; jdx < Grid.NY; jdx++) {
         for (int idx = 0; idx < Grid.NX; idx++) {
@@ -105,7 +105,7 @@ TEST(OperatorSplitting, PISO_STEP)
             }
             switch (Grid.NY - jdx) {
             case 1:
-                // EXPECT_NEAR(u_next_mat(idx, jdx), 2, 1e-6);
+                EXPECT_NEAR(u_next_mat(idx, jdx), 2, 1e-6);
                 break;
             // case 2:
             //     if (idx != 0 && idx != Grid.NX - 1) {
