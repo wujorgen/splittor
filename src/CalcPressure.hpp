@@ -5,6 +5,10 @@
 
 #include "Types.hpp"
 
+void calcPressureDense(Eigen::VectorXd& p_star,
+    const Eigen::VectorXd& u_star, const Eigen::VectorXd& v_star,
+    const GridInfo& Grid, const BoundaryConditions& BC, const ProblemInformation& Problem);
+
 void calcPressure(Eigen::VectorXd& p_star,
     const Eigen::VectorXd& u_star, const Eigen::VectorXd& v_star,
     const GridInfo& Grid, const BoundaryConditions& BC, const ProblemInformation& Problem);
