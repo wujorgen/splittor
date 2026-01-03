@@ -39,8 +39,8 @@ def plot_profiles(Re:float=10):
     fig, axes = plt.subplots(1,2, figsize=(11,5))
     # reference
     try:
-        axes[0].plot(u_df["y"], u_df[f"Re_{int(Re)}"], label=f"Ghia, u, Re = {Re}")
-        axes[1].plot(v_df["x"], v_df[f"Re_{int(Re)}"], label=f"Ghia, v, Re = {Re}")
+        axes[0].plot(u_df["y"], u_df[f"Re_{int(Re)}"], marker="o", linestyle=":", label=f"Ghia, u, Re = {Re}")
+        axes[1].plot(v_df["x"], v_df[f"Re_{int(Re)}"], marker="o", linestyle=":", label=f"Ghia, v, Re = {Re}")
     except:
         print("Could not find reference solution.")
     # simulated
