@@ -2,6 +2,7 @@
 #include <Eigen/IterativeLinearSolvers>
 #include <Eigen/Sparse>
 #include <iostream>
+#include <unsupported/Eigen/IterativeSolvers>
 
 #include "CalcPressure.hpp"
 #include "Types.hpp"
@@ -89,7 +90,9 @@ void calcPressureDense(Eigen::VectorXd& p_star,
 }
 
 /**
- * @brief
+ * @brief Solves pressure poisson equation.
+ * 
+ * @param p_star the solution the pressure poisson equation is stored to this variable
  */
 void calcPressure(Eigen::VectorXd& p_star,
     const Eigen::VectorXd& u_star, const Eigen::VectorXd& v_star,
@@ -173,8 +176,10 @@ void calcPressure(Eigen::VectorXd& p_star,
     }
     // build coefficient matrix
     A.setFromTriplets(triplets.begin(), triplets.end());
-    // Eigen::ConjugateGradient<Eigen::SparseMatrix<double>> solver;
-    Eigen::BiCGSTAB<Eigen::SparseMatrix<double, Eigen::RowMajor>> solver;
+    A.makeCompressed();
+    Eigen::BiCGSTAB<Eigen::SparseMatrix<double, Eigen::RowMajor>> solver; // Eigen::IncompleteLUT<double>
+    // Eigen::GMRES<Eigen::SparseMatrix<double, Eigen::RowMajor>, Eigen::IncompleteLUT<double>> solver;
+    // solver.set_restart(30);
     // solver.setMaxIterations(1000);
     // solver.setTolerance(1e-10);
     solver.compute(A);

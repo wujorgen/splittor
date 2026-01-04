@@ -58,17 +58,17 @@ int stepPISO(Eigen::VectorXd& u_next, Eigen::VectorXd& v_next, Eigen::VectorXd& 
     std::cout << "Begin PISO Step" << std::endl;
     std::cout << std::setfill(' ') << std::setw(2) << "iteration | max divergence | mean divergence | u rel norm | v rel norm" << std::endl;
     for (int itr = 0; itr < Problem.Convergence.PISO.MAX_NUM_ITERATIONS; itr++) {
+        // step PISO
+        calcPressure(p_s1, u_s1, v_s1, Grid, BC, Problem);
+        projectVelocity(u_s2, v_s2, u_s1, v_s1, p_s1, Grid, BC, Problem);
         // Divergence
-        step_max_divergence = computeMaxDivergence(u_s1, v_s1, Grid);
-        step_mean_divergence = computeMeanDivergence(u_s1, v_s1, Grid);
+        step_max_divergence = computeMaxDivergence(u_s2, v_s2, Grid);
+        step_mean_divergence = computeMeanDivergence(u_s2, v_s2, Grid);
         if (step_max_divergence < Problem.Convergence.PISO.TOL_DIVERGENCE) {
             DIVERGENCE_CONVERGED = true;
         }
         max_divergence_history.push_back(step_max_divergence);
         mean_divergence_history.push_back(step_mean_divergence);
-        // step PISO
-        calcPressure(p_s1, u_s1, v_s1, Grid, BC, Problem);
-        projectVelocity(u_s2, v_s2, u_s1, v_s1, p_s1, Grid, BC, Problem);
         // velocity changes
         delta_u_rel_norm = (u_s2 - u_s1).norm() / u_s1.norm();
         delta_v_rel_norm = (v_s2 - v_s1).norm() / v_s1.norm();
@@ -80,7 +80,7 @@ int stepPISO(Eigen::VectorXd& u_next, Eigen::VectorXd& v_next, Eigen::VectorXd& 
         // print formating
         if (itr % Problem.Convergence.PISO.PRINT_EVERY_N_ITERATIONS == 0 || (DIVERGENCE_CONVERGED || VELOCITY_CONVERGED)) {
             std::cout << std::setprecision(5) << std::setfill(' ')
-                      << std::setw(9) << itr << " | "
+                      << std::setw(9) << itr + 1 << " | "
                       << std::setw(14) << step_max_divergence << " | "
                       << std::setw(15) << step_mean_divergence << " | "
                       << std::setw(10) << delta_u_rel_norm << " | "
@@ -88,7 +88,7 @@ int stepPISO(Eigen::VectorXd& u_next, Eigen::VectorXd& v_next, Eigen::VectorXd& 
                       << std::endl;
         }
         // optional: exit if converged
-        // without rhie chow interpolation in pressure calculation, 
+        // without rhie chow interpolation in pressure calculation,
         // doing PISO iterations until a small tolerance has been achieved will cause checkerboarding.
         if (DIVERGENCE_CONVERGED || VELOCITY_CONVERGED) {
             RETURN_FLAG = 0;

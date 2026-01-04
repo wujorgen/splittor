@@ -72,7 +72,9 @@ endif()
 # target_compile_options(libsplittor PRIVATE -march=native)  # this option causes the poisson solver test to seg fault
 target_compile_options(
 	splittor PRIVATE
-	-O0
+	-O3
+	-DNDEBUG
+	-flto
 	-fopenmp
 )
 

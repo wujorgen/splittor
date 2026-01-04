@@ -2,6 +2,7 @@
 #include <Eigen/IterativeLinearSolvers>
 #include <Eigen/Sparse>
 #include <iostream>
+#include <unsupported/Eigen/IterativeSolvers>
 
 #include "CalcIntermediateVelocity.hpp"
 #include "Types.hpp"
@@ -10,6 +11,10 @@
  * @brief Calculates intermediate velocities using an explicit timestep.
  *
  * As this function utilizes an explcit step, it is subject to CFL number for stability.
+ * In the future, if the code is changed to use the explicit step, the followign stability conditions should apply:
+ *      CFL: max(u) * dt / dx < 1
+ *      Diffusion: dt < dx^2 / (2 nu), where nu is mu / rho
+ * 
  * @param u_star
  * @param v_star
  * @param u
@@ -304,12 +309,18 @@ void stepIntermediateSemiImplicit(Eigen::VectorXd& u_star, Eigen::VectorXd& v_st
     // build coefficient matrix
     Au.setFromTriplets(utriplets.begin(), utriplets.end());
     Av.setFromTriplets(vtriplets.begin(), vtriplets.end());
-    Eigen::BiCGSTAB<Eigen::SparseMatrix<double, Eigen::RowMajor>> usolver;
+    Au.makeCompressed();
+    Av.makeCompressed();
+    Eigen::BiCGSTAB<Eigen::SparseMatrix<double, Eigen::RowMajor>> usolver; // Eigen::IncompleteLUT<double>
     Eigen::BiCGSTAB<Eigen::SparseMatrix<double, Eigen::RowMajor>> vsolver;
+    // Eigen::GMRES<Eigen::SparseMatrix<double, Eigen::RowMajor>, Eigen::IncompleteLUT<double>> usolver;
+    // Eigen::GMRES<Eigen::SparseMatrix<double, Eigen::RowMajor>, Eigen::IncompleteLUT<double>> vsolver;
     // usolver.setMaxIterations(10000);
     // vsolver.setMaxIterations(10000);
     // usolver.setTolerance(1e-14);
     // vsolver.setTolerance(1e-14);
+    // usolver.set_restart(30);
+    // vsolver.set_restart(30);
     usolver.compute(Au);
     vsolver.compute(Av);
     // solve for intermediate velocity
@@ -317,11 +328,11 @@ void stepIntermediateSemiImplicit(Eigen::VectorXd& u_star, Eigen::VectorXd& v_st
     v_star = vsolver.solve(bv);
 
     if (usolver.info() != Eigen::Success) {
-        std::cerr << "Warning: Pressure solver did not converge. Iterations: "
+        std::cerr << "Warning: u-momentum solver did not converge. Iterations: "
                   << usolver.iterations() << ", Error: " << usolver.error() << std::endl;
     }
     if (vsolver.info() != Eigen::Success) {
-        std::cerr << "Warning: Pressure solver did not converge. Iterations: "
+        std::cerr << "Warning: v-momentum solver did not converge. Iterations: "
                   << vsolver.iterations() << ", Error: " << vsolver.error() << std::endl;
     }
 }

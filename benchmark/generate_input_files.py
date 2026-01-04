@@ -40,6 +40,10 @@ def lid_driven_cavity(resolution:int=65, Re:float=10):
                     PBCTYPE = 0  # do not specify - no grad default at domain edge
                 if jdx == NY - 1 and idx == NX//2:
                     # pressure poisson needs a fixed pressure value for at least one point, so here it is
+                    # set PBCTYPE to 1 if Bi-Conjugate Gradient or similar is used.
+                    # GMRES for pressure poisson appears robust enough to handle singular matrices.
+                    # it should be noted the output of the solver is affected if the pin is at the top or bottom.
+                    # top seems to have better results.
                     PBCTYPE = 1
                     PVAL = 0
                 f.write(f"{X[idx]:.5f}  {Y[jdx]:.5f}  {0:.5f}  {VBCTYPE:5d}  {PBCTYPE:5d}  {UVAL:.5f}  {VVAL:.5f}  {0:.5f}  {PVAL:.5f}\n")
@@ -49,6 +53,7 @@ def lid_driven_cavity(resolution:int=65, Re:float=10):
         f.write(f"rho  {rho}\n")
         f.write(f"dt  {dt}\n")
         f.write("mode  steady\n")
+        f.write("steady_state_max_steps  5000")
     
     np.save("XMG.npy", XMG)
     np.save("YMG.npy", YMG)
