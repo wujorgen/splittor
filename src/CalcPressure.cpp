@@ -107,7 +107,7 @@ void calcPressure(Eigen::VectorXd& p_star,
     double dvdy_p, dvdy_m;
     // coefficient matrix and RHS, using sparse matrix using triplets
     int NTOTAL = Grid.NX * Grid.NY;
-    Eigen::SparseMatrix<double> A(NTOTAL, NTOTAL);
+    Eigen::SparseMatrix<double, Eigen::RowMajor> A(NTOTAL, NTOTAL);
     std::vector<Eigen::Triplet<double>> triplets;
     triplets.reserve(5 * NTOTAL); // ~5 non-zeros per row (Laplacian stencil)
     Eigen::VectorXd b = Eigen::VectorXd::Zero(Grid.NX * Grid.NY);
@@ -174,7 +174,7 @@ void calcPressure(Eigen::VectorXd& p_star,
     // build coefficient matrix
     A.setFromTriplets(triplets.begin(), triplets.end());
     // Eigen::ConjugateGradient<Eigen::SparseMatrix<double>> solver;
-    Eigen::BiCGSTAB<Eigen::SparseMatrix<double>> solver;
+    Eigen::BiCGSTAB<Eigen::SparseMatrix<double, Eigen::RowMajor>> solver;
     // solver.setMaxIterations(1000);
     // solver.setTolerance(1e-10);
     solver.compute(A);

@@ -1,5 +1,8 @@
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
 #include <fstream>
 #include <iostream>
+#include <omp.h>
 
 #include "Constants.hpp"
 #include "InputProcessor.hpp"
@@ -14,7 +17,9 @@ using namespace std;
 
 int main()
 {
+    Eigen::initParallel();
     std::cout << "The number of threads that Eigen3 can see is: " << Eigen::nbThreads() << std::endl;
+    std::cout << "Open MP max threads: " << omp_get_max_threads() << std::endl;
 
     ProblemInformation Problem;
     GridInfo Grid;

@@ -222,11 +222,11 @@ void stepIntermediateSemiImplicit(Eigen::VectorXd& u_star, Eigen::VectorXd& v_st
     // Eigen::MatrixXd Au = Eigen::MatrixXd::Zero(NTOTAL, NTOTAL);
     // Eigen::MatrixXd Av = Eigen::MatrixXd::Zero(NTOTAL, NTOTAL);
 
-    Eigen::SparseMatrix<double> Au(NTOTAL, NTOTAL);
+    Eigen::SparseMatrix<double, Eigen::RowMajor> Au(NTOTAL, NTOTAL);
     std::vector<Eigen::Triplet<double>> utriplets;
     utriplets.reserve(5 * NTOTAL); // 2D problem has ~5 non-zero entries per row
 
-    Eigen::SparseMatrix<double> Av(NTOTAL, NTOTAL);
+    Eigen::SparseMatrix<double, Eigen::RowMajor> Av(NTOTAL, NTOTAL);
     std::vector<Eigen::Triplet<double>> vtriplets;
     vtriplets.reserve(5 * NTOTAL); // 2D problem has ~5 non-zero entries per row
 
@@ -304,8 +304,8 @@ void stepIntermediateSemiImplicit(Eigen::VectorXd& u_star, Eigen::VectorXd& v_st
     // build coefficient matrix
     Au.setFromTriplets(utriplets.begin(), utriplets.end());
     Av.setFromTriplets(vtriplets.begin(), vtriplets.end());
-    Eigen::BiCGSTAB<Eigen::SparseMatrix<double>> usolver;
-    Eigen::BiCGSTAB<Eigen::SparseMatrix<double>> vsolver;
+    Eigen::BiCGSTAB<Eigen::SparseMatrix<double, Eigen::RowMajor>> usolver;
+    Eigen::BiCGSTAB<Eigen::SparseMatrix<double, Eigen::RowMajor>> vsolver;
     // usolver.setMaxIterations(10000);
     // vsolver.setMaxIterations(10000);
     // usolver.setTolerance(1e-14);
