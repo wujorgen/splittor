@@ -178,8 +178,6 @@ void calcPressure(Eigen::VectorXd& p_star,
     A.setFromTriplets(triplets.begin(), triplets.end());
     A.makeCompressed();
     Eigen::BiCGSTAB<Eigen::SparseMatrix<double, Eigen::RowMajor>> solver; // Eigen::IncompleteLUT<double>
-    // Eigen::GMRES<Eigen::SparseMatrix<double, Eigen::RowMajor>, Eigen::IncompleteLUT<double>> solver;
-    // solver.set_restart(30);
     // solver.setMaxIterations(1000);
     // solver.setTolerance(1e-10);
     solver.compute(A);
