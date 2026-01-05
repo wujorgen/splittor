@@ -34,8 +34,7 @@ int stepPISO(Eigen::VectorXd& u_next, Eigen::VectorXd& v_next, Eigen::VectorXd& 
     bool DIVERGENCE_CONVERGED = false;
     bool VELOCITY_CONVERGED = false;
 
-    double step_max_divergence;
-    double step_mean_divergence;
+    DivergenceResult step_divergence;
     std::vector<double> max_divergence_history;
     std::vector<double> mean_divergence_history;
     double delta_u_rel_norm;
@@ -62,13 +61,12 @@ int stepPISO(Eigen::VectorXd& u_next, Eigen::VectorXd& v_next, Eigen::VectorXd& 
         calcPressure(p_s1, u_s1, v_s1, Grid, BC, Problem);
         projectVelocity(u_s2, v_s2, u_s1, v_s1, p_s1, Grid, BC, Problem);
         // Divergence
-        step_max_divergence = computeMaxDivergence(u_s2, v_s2, Grid);
-        step_mean_divergence = computeMeanDivergence(u_s2, v_s2, Grid);
-        if (step_max_divergence < Problem.Convergence.PISO.TOL_DIVERGENCE) {
+        step_divergence = computeDivergence(u_s2, v_s2, Grid);
+        if (step_divergence.max_div < Problem.Convergence.PISO.TOL_DIVERGENCE) {
             DIVERGENCE_CONVERGED = true;
         }
-        max_divergence_history.push_back(step_max_divergence);
-        mean_divergence_history.push_back(step_mean_divergence);
+        max_divergence_history.push_back(step_divergence.max_div);
+        mean_divergence_history.push_back(step_divergence.mean_div);
         // velocity changes
         delta_u_rel_norm = (u_s2 - u_s1).norm() / u_s1.norm();
         delta_v_rel_norm = (v_s2 - v_s1).norm() / v_s1.norm();
@@ -81,8 +79,8 @@ int stepPISO(Eigen::VectorXd& u_next, Eigen::VectorXd& v_next, Eigen::VectorXd& 
         if (itr % Problem.Convergence.PISO.PRINT_EVERY_N_ITERATIONS == 0 || (DIVERGENCE_CONVERGED || VELOCITY_CONVERGED)) {
             std::cout << std::setprecision(5) << std::setfill(' ')
                       << std::setw(9) << itr + 1 << " | "
-                      << std::setw(14) << step_max_divergence << " | "
-                      << std::setw(15) << step_mean_divergence << " | "
+                      << std::setw(14) << step_divergence.max_div << " | "
+                      << std::setw(15) << step_divergence.mean_div << " | "
                       << std::setw(10) << delta_u_rel_norm << " | "
                       << std::setw(10) << delta_v_rel_norm
                       << std::endl;

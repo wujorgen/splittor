@@ -172,3 +172,48 @@ double computeMeanDivergence(const Eigen::VectorXd& u, const Eigen::VectorXd& v,
     }
     return mean_div;
 }
+
+/**
+ * @brief Computes divergence of a flow field.
+ *
+ * This version of the function attemps to take advantage of Eigen3's vectorization.
+ */
+DivergenceResult computeDivergence(const Eigen::VectorXd& u, const Eigen::VectorXd& v,
+    const GridInfo& Grid, bool debug)
+{
+    // 1. Map flat vectors to 2D RowMajor views
+    Eigen::Map<const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>> U(u.data(), Grid.NY, Grid.NX);
+    Eigen::Map<const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>> V(v.data(), Grid.NY, Grid.NX);
+
+    int innerNY = Grid.NY - 2;
+    int innerNX = Grid.NX - 2;
+
+    // 2. Mesh Spacing: delta = (x[i+1] - x[i-1])
+    // We convert to .array() immediately to allow coefficient-wise math later
+    Eigen::ArrayXd deltaX = (Grid.X.segment(2, innerNX) - Grid.X.segment(0, innerNX)).array();
+    Eigen::ArrayXd deltaY = (Grid.Y.segment(2, innerNY) - Grid.Y.segment(0, innerNY)).array();
+
+    // 3. Finite Difference numerator
+    // We convert the Matrix blocks to Arrays to perform the division
+    auto dudx_num = (U.block(1, 2, innerNY, innerNX) - U.block(1, 0, innerNY, innerNX)).array();
+    auto dvdy_num = (V.block(2, 1, innerNY, innerNX) - V.block(0, 1, innerNY, innerNX)).array();
+
+    // 4. Perform the non-uniform division (Broadcasting)
+    // dudx: Divide each row by deltaX
+    // dvdy: Divide each column by deltaY
+    Eigen::ArrayXXd dudx = dudx_num.rowwise() / deltaX.transpose();
+    Eigen::ArrayXXd dvdy = dvdy_num.colwise() / deltaY;
+
+    // 5. Compute absolute divergence field
+    Eigen::ArrayXXd div = (dudx + dvdy).abs();
+
+    DivergenceResult res;
+    res.max_div = div.maxCoeff();
+    res.mean_div = div.mean();
+
+    if (debug) {
+        std::printf("Max Div: %.6e, Mean Div: %.6e\n", res.max_div, res.mean_div);
+    }
+
+    return res;
+}

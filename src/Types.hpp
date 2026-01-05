@@ -96,4 +96,9 @@ struct BoundaryConditions {
     std::vector<double> p;
 };
 
+struct DivergenceResult {
+    double max_div;
+    double mean_div;
+};
+
 #endif
