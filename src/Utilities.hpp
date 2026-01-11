@@ -15,4 +15,7 @@ double computeMaxDivergence(const Eigen::VectorXd& u, const Eigen::VectorXd& v, 
 
 double computeMeanDivergence(const Eigen::VectorXd& u, const Eigen::VectorXd& v, const GridInfo& Grid, const bool& print = false);
 
+DivergenceResult computeDivergence(const Eigen::VectorXd& u, const Eigen::VectorXd& v,
+    const GridInfo& Grid, bool debug = false);
+
 #endif
